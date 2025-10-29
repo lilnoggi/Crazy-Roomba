@@ -87,7 +87,7 @@ public class Mover : MonoBehaviour
     {
         yield return new WaitForSeconds(1); // Delay before changing back
 
-        GetComponentInChildren<MeshRenderer>().material.color = Color.black; // Change roomba back to black
+        GetComponentInChildren<MeshRenderer>().material.color = Color.aquamarine; // Change roomba back to black
     }
 
     // --- COLLIDE WITH DUST --- \\
@@ -175,7 +175,7 @@ public class Mover : MonoBehaviour
 
         // 4. Return to the normal game state
 
-        GetComponentInChildren<MeshRenderer>().material.color = Color.black;
+        GetComponentInChildren<MeshRenderer>().material.color = Color.aquamarine;
 
         // Resume movement speed
         moveSpeed = 10;
