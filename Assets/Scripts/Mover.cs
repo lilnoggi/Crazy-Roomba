@@ -5,6 +5,7 @@ using TMPro;
 
 public class Mover : MonoBehaviour
 {
+    // === VARIABLES === \\
     [Header("Settings")]
     [SerializeField] private float moveSpeed = 10f; // How fast the Roomba can move
     [SerializeField] int hits = 0; // Amount of times the player has hit furniture
@@ -31,7 +32,7 @@ public class Mover : MonoBehaviour
     {
         audioSource = GetComponent<AudioSource>();
 
-        // --- LOGIC FOR AUDIO LOOPING --- \\
+        // === LOGIC FOR AUDIO LOOPING === \\
         if (audioSource != null && vacuumLoop != null)
         {
             audioSource.clip = vacuumLoop; // Set the clip to looping
@@ -46,6 +47,7 @@ public class Mover : MonoBehaviour
         UpdateUI(); // Updates the UI output
     }
 
+    // === ROOMBA MOVEMENT === \\
     void MoveRoomba()
     {
         float xValue = Input.GetAxis("Horizontal") * Time.deltaTime; // Get the horizontal keys (A, D, Left, Right)
@@ -54,7 +56,7 @@ public class Mover : MonoBehaviour
         transform.Translate(xValue * moveSpeed, 0f, zValue * moveSpeed); // Movement speed calculation
     }
 
-    // --- COLLIDE WITH FURNITURE --- \\
+    // === COLLIDE WITH FURNITURE === \\
     private void OnCollisionEnter(Collision other) // CHANGED from private int to private void
     {
        PlayRandomSound();
@@ -83,14 +85,7 @@ public class Mover : MonoBehaviour
         }
     }
 
-    IEnumerator ChangeColour()
-    {
-        yield return new WaitForSeconds(1); // Delay before changing back
-
-        GetComponentInChildren<MeshRenderer>().material.color = Color.aquamarine; // Change roomba back to black
-    }
-
-    // --- COLLIDE WITH DUST --- \\
+    // === COLLIDE WITH DUST === \\
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Dust")
@@ -102,6 +97,7 @@ public class Mover : MonoBehaviour
         }
     }
 
+    // === UPDATE UI === \\
     void UpdateUI()
     {
         dustCounter.text = $"Dust Collected: {dustCollected}"; // displays on screen // updates ui
@@ -109,7 +105,7 @@ public class Mover : MonoBehaviour
         scoreCounter.text = $"Score: {score}"; 
     }
 
-    // --- AUDIO --- \\
+    // === AUDIO === \\
     private void PlaySound(AudioClip clip)
     {
         if (clip != null && audioSource != null) // Safety check
@@ -137,7 +133,15 @@ public class Mover : MonoBehaviour
         PlaySound(randomClip);
     }
 
-    // Slow player down when dust is collected
+    // === COROUTINES === \\
+    IEnumerator ChangeColour()
+    {
+        yield return new WaitForSeconds(1); // Delay before changing back
+
+        GetComponentInChildren<MeshRenderer>().material.color = Color.aquamarine; // Change roomba back to black
+    }
+
+    // --- Slow player down when dust is collected --- \\
     IEnumerator SlowDown()
     {
         moveSpeed = 2f; // Reduce speed
@@ -147,7 +151,7 @@ public class Mover : MonoBehaviour
         moveSpeed = 10f; // Restore speed
     }
 
-    // The main sequence for stopping and restarting the vacuum
+    // --- The main sequence for stopping and restarting the vacuum --- \\
     IEnumerator BreakVacuumSequence(float delay)
     {
         PlaySound(brokeDown);
