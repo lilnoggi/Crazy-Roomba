@@ -1,4 +1,4 @@
-# Homicide-Hoover ![Unity](https://img.shields.io/badge/Engine-Unity-20232A?logo=unity&logoColor=white) ![C#](https://img.shields.io/badge/Language-C%23-239120?logo=c-sharp&logoColor=white)
+# Homicide Hoover ![Unity](https://img.shields.io/badge/Engine-Unity-20232A?logo=unity&logoColor=white) ![C#](https://img.shields.io/badge/Language-C%23-239120?logo=c-sharp&logoColor=white)
 
 You are the **Homicide Hoover**, a tiny automated vacuum forced to **clean up bloody crime scenes** before the police arrive. Vacuum up evidence and maintain your structural integrity while dodging furniture to achieve the perfect five-star clean.
 
