@@ -2270,7 +2270,8 @@ MonoBehaviour:
   hitLimit: 0
   dustCollected: 0
   score: 0
-  maxDustCapacity: 10
+  maxCapacity: 10
+  currentCapacity: 0
   dustCounter: {fileID: 1429073188}
   furnitureHitCounter: {fileID: 20567774}
   scoreCounter: {fileID: 678570843}
@@ -2506,7 +2507,7 @@ GameObject:
   - component: {fileID: 526025436}
   m_Layer: 0
   m_Name: Wall3
-  m_TagString: Untagged
+  m_TagString: Furniture
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -8004,7 +8005,7 @@ GameObject:
   - component: {fileID: 1271339457}
   m_Layer: 0
   m_Name: Wall4
-  m_TagString: Untagged
+  m_TagString: Furniture
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -11269,7 +11270,7 @@ GameObject:
   - component: {fileID: 1921259510}
   m_Layer: 0
   m_Name: Wall1
-  m_TagString: Untagged
+  m_TagString: Furniture
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -11529,7 +11530,7 @@ GameObject:
   - component: {fileID: 2001252913}
   m_Layer: 0
   m_Name: Wall2
-  m_TagString: Untagged
+  m_TagString: Furniture
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -7,13 +7,16 @@ public class Mover : MonoBehaviour
 {
     // === VARIABLES === \\
     [Header("Settings")]
-    [SerializeField] private float moveSpeed = 10f; // How fast the Roomba can move
+    private const float baseMoveSpeed = 10f; // Base movement speed
+
+    [SerializeField] private float moveSpeed = baseMoveSpeed; // How fast the Roomba can move
     [SerializeField] int hits = 0;                 // Amount of times the player has hit furniture
     [SerializeField] int hitLimit = 0;            // Limit before the Roomba breaks down
     public int dustCollected;                    // Amount of dust player collected
     public int score;                           // Player's score
     [Header("Capacity Variables")]
-    public int maxDustCapacity = 10;            // Maximum dust capacity before Roomba needs to empty
+    public int maxCapacity = 10;            // Maximum dust capacity before Roomba needs to empty
+    public int currentCapacity;            // Current dust capacity
 
     [Header("UI Components")]
     public TextMeshProUGUI dustCounter;          // UI text fore score goes here!
@@ -30,6 +33,10 @@ public class Mover : MonoBehaviour
     public AudioClip brokeDown;
 
     private AudioSource audioSource;
+
+    private bool isBroken =  false; // Prevents speed from being reset while broken
+    private bool isSlowed = false; // Prevents the next fix from being overridden
+    private bool isFull = false;  // New flag for bag status
 
     private void Awake()
     {
@@ -53,6 +60,35 @@ public class Mover : MonoBehaviour
     // === ROOMBA MOVEMENT === \\
     void MoveRoomba()
     {
+        // --- Only allow movement if not broken --- \\
+        if (isBroken)
+        {
+            moveSpeed = 0f;
+            return; // Exit the method early if broken
+        }
+
+        float targetSpeed = baseMoveSpeed;
+
+        // --- Apply slowdown capacity penalty --- \\
+        if (currentCapacity >= maxCapacity)
+        {
+            targetSpeed = 5f;
+            isFull = true;
+        }
+        else
+        {
+            isFull = false;
+        }
+
+        // --- Apply slowdown from dust collection --- \\
+        if (isSlowed)
+        {
+            targetSpeed = 2f;
+        }
+
+        // --- Final speed is the calculated target speed --- \\
+        moveSpeed = targetSpeed;
+
         float xValue = Input.GetAxis("Horizontal") * Time.deltaTime; // Get the horizontal keys (A, D, Left, Right)
         float zValue = Input.GetAxis("Vertical") * Time.deltaTime;  // Get vertical movement keys (W, S, Up, Down)
 
@@ -64,6 +100,8 @@ public class Mover : MonoBehaviour
     {
         if (other.gameObject.tag == "Furniture")
         {
+            if (isBroken) return;
+
             PlayRandomSound();
 
             hits++; // If the player collides with an object, the hit counter increases by 1.
@@ -79,6 +117,7 @@ public class Mover : MonoBehaviour
             // --- CHECK FOR BREAKAGE --- \\
             if (hitLimit >= 3)
             {
+                isBroken = true; // Set broken state to true
                 // Stop the current vacuum sound instantly
                 audioSource.Stop();
 
@@ -96,11 +135,26 @@ public class Mover : MonoBehaviour
     {
         if (other.tag == "Dust")
         {
+            // --- If Broken or Full, do not collect dust --- \\
+            if (isBroken || currentCapacity >= maxCapacity)
+            {
+                Debug.Log(isBroken ? "Cannot collect dust while broken!" : "Dust bag is full! Please empty.");
+                return; // Exit the method early
+            }
+
+            // --- Capacity Tracking --- \\
+            const int dustCapacityCost = 1; // Each dust collected costs 1 capacity
+            const int dustScore = 10; // How many points each dust is worth
+
+            currentCapacity += dustCapacityCost; // Increase current capacity
+            score += dustScore;                 // Increase score
+            dustCollected++;                   // Increase dust collected
+
             StartCoroutine(SlowDown()); // Slow down the player temporarily
             PlaySound(pickupSound);
-            dustCollected++;          // Increases dust collected by 1
-            score += 100;            // Increases score by 100
         }
+
+        // EVIDENCE HANDLING GOES HERE \\
     }
 
     // === UPDATE UI === \\
@@ -109,7 +163,7 @@ public class Mover : MonoBehaviour
         dustCounter.text = $"Dust Collected: {dustCollected}";                    // Updates dust collected UI
         furnitureHitCounter.text = $"Furniture Hit: {hits}";                     // Updates furniture hit UI
         scoreCounter.text = $"Score: {score}";                                  // Updates score UI
-        capacityCounter.text = $"Capacity: {dustCollected}/{maxDustCapacity}"; // Updates capacity UI
+        capacityCounter.text = $"Capacity: {dustCollected}/{maxCapacity}"; // Updates capacity UI
     }
 
     // === AUDIO === \\
@@ -145,15 +199,23 @@ public class Mover : MonoBehaviour
     {
         yield return new WaitForSeconds(1); // Delay before changing back
 
-        GetComponentInChildren<MeshRenderer>().material.color = Color.aquamarine; // Change roomba back to black
+        // --- Return to original colour only if not currently in the BreakVaccuumSequence --- \\
+        if (!isBroken)
+        {
+            GetComponentInChildren<MeshRenderer>().material.color = Color.aquamarine; // Change roomba back to orginal colour
+        }
     }
 
     // --- Slow player down when dust is collected --- \\
     IEnumerator SlowDown()
     {
+        isSlowed = true; // Set the slowed flag to true
+
         moveSpeed = 2f; // Reduce speed
 
         yield return new WaitForSeconds(1); // Wait for 1 second
+
+        isSlowed = false; // Reset the slowed flag
 
         moveSpeed = 10f; // Restore speed
     }
@@ -187,6 +249,8 @@ public class Mover : MonoBehaviour
         // 4. Return to the normal game state
 
         GetComponentInChildren<MeshRenderer>().material.color = Color.aquamarine; // Change roomba back to normal colour
+
+        isBroken = false; // Reset broken state
 
         // Resume movement speed
         moveSpeed = 10;
