@@ -12,11 +12,14 @@ public class Mover : MonoBehaviour
     [SerializeField] int hitLimit = 0;            // Limit before the Roomba breaks down
     public int dustCollected;                    // Amount of dust player collected
     public int score;                           // Player's score
+    [Header("Capacity Variables")]
+    public int maxDustCapacity = 10;            // Maximum dust capacity before Roomba needs to empty
 
     [Header("UI Components")]
     public TextMeshProUGUI dustCounter;          // UI text fore score goes here!
     public TextMeshProUGUI furnitureHitCounter; // UI text for amount of furniture hit
     public TextMeshProUGUI scoreCounter;       // UI text for score
+    public TextMeshProUGUI capacityCounter;   // UI text for dust capacity
 
     [Header("Audio")]
     public AudioClip pickupSound;
@@ -59,29 +62,32 @@ public class Mover : MonoBehaviour
     // === COLLIDE WITH FURNITURE === \\
     private void OnCollisionEnter(Collision other) // CHANGED from private int to private void
     {
-       PlayRandomSound();
-        
-        hits++; // If the player collides with an object, the hit counter increases by 1.
-        score -= 50;
-        hitLimit++;
-        
-        Debug.Log($"Bad Roomba! You hit: {hits} pieces of furniture!"); // Console output.
-        
-        GetComponentInChildren<MeshRenderer>().material.color = Color.red; // The roomba changes red.
-        
-        StartCoroutine(ChangeColour()); // Start the colour change coroutine.
-
-        // --- CHECK FOR BREAKAGE --- \\
-        if (hitLimit >= 3)
+        if (other.gameObject.tag == "Furniture")
         {
-            // Stop the current vacuum sound instantly
-            audioSource.Stop();
+            PlayRandomSound();
 
-            // Start the entire break/fix sequence
-            StartCoroutine(BreakVacuumSequence(4.5f)); // 5 is the duration of the "break"
+            hits++; // If the player collides with an object, the hit counter increases by 1.
+            score -= 50;
+            hitLimit++;
 
-            // Reset the hit limit
-            hitLimit = 0;
+            Debug.Log($"Bad Roomba! You hit: {hits} pieces of furniture!"); // Console output.
+
+            GetComponentInChildren<MeshRenderer>().material.color = Color.red; // The roomba changes red.
+
+            StartCoroutine(ChangeColour()); // Start the colour change coroutine.
+
+            // --- CHECK FOR BREAKAGE --- \\
+            if (hitLimit >= 3)
+            {
+                // Stop the current vacuum sound instantly
+                audioSource.Stop();
+
+                // Start the entire break/fix sequence
+                StartCoroutine(BreakVacuumSequence(4.5f)); // 5 is the duration of the "break"
+
+                // Reset the hit limit
+                hitLimit = 0;
+            }
         }
     }
 
@@ -100,9 +106,10 @@ public class Mover : MonoBehaviour
     // === UPDATE UI === \\
     void UpdateUI()
     {
-        dustCounter.text = $"Dust Collected: {dustCollected}"; // Updates dust collected UI
-        furnitureHitCounter.text = $"Furniture Hit: {hits}";  // Updates furniture hit UI
-        scoreCounter.text = $"Score: {score}";               // Updates score UI
+        dustCounter.text = $"Dust Collected: {dustCollected}";                    // Updates dust collected UI
+        furnitureHitCounter.text = $"Furniture Hit: {hits}";                     // Updates furniture hit UI
+        scoreCounter.text = $"Score: {score}";                                  // Updates score UI
+        capacityCounter.text = $"Capacity: {dustCollected}/{maxDustCapacity}"; // Updates capacity UI
     }
 
     // === AUDIO === \\
@@ -172,7 +179,7 @@ public class Mover : MonoBehaviour
         // Play the vacuum on sound
         PlaySound(vacuumOn);
 
-        GetComponentInChildren<MeshRenderer>().material.color = Color.green; // Change roomba to green to indicate repair
+        GetComponentInChildren<MeshRenderer>().material.color = Color.blue; // Change roomba to green to indicate repair
 
         // Wait for the vacuum ON sound to finish
         yield return new WaitForSeconds(0.5f);
