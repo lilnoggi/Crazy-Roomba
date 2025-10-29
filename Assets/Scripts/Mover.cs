@@ -14,6 +14,7 @@ public class Mover : MonoBehaviour
     [SerializeField] int hitLimit = 0;            // Limit before the Roomba breaks down
     public int dustCollected;                    // Amount of dust player collected
     public int score;                           // Player's score
+
     [Header("Capacity Variables")]
     public int maxCapacity = 10;            // Maximum dust capacity before Roomba needs to empty
     public int currentCapacity;            // Current dust capacity
@@ -36,7 +37,7 @@ public class Mover : MonoBehaviour
 
     private bool isBroken =  false; // Prevents speed from being reset while broken
     private bool isSlowed = false; // Prevents the next fix from being overridden
-    private bool isFull = false;  // New flag for bag status
+    public bool isFull = false;  // New flag for bag status
 
     private void Awake()
     {

@@ -2285,6 +2285,7 @@ MonoBehaviour:
   vacuumOff: {fileID: 8300000, guid: d291c91355c9c63449484445743cd169, type: 3}
   vacuumOn: {fileID: 8300000, guid: 370ff02ec0632f248bd179102dbfca07, type: 3}
   brokeDown: {fileID: 8300000, guid: 54e2c64de84748946ad820c9ff5fa570, type: 3}
+  isFull: 0
 --- !u!82 &500659561
 AudioSource:
   m_ObjectHideFlags: 0
