@@ -11944,7 +11944,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 229550197710788812, guid: 0859fb3b788891c4e81e9901db471632, type: 3}
       propertyPath: m_Name
-      value: CrazyRoomba
+      value: HomicideHoover
       objectReference: {fileID: 0}
     - target: {fileID: 229550197710788812, guid: 0859fb3b788891c4e81e9901db471632, type: 3}
       propertyPath: m_TagString
