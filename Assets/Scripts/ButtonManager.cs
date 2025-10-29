@@ -4,44 +4,44 @@ using UnityEngine.SceneManagement;
 
 public class ButtonManager : MonoBehaviour
 {
-    public GameObject tutorialPanel;
+    public GameObject tutorialPanel; // Reference to the tutorial panel UI
 
     public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape)) // Check if the Escape key is pressed
         {
-            PauseGame();
+            PauseGame(); // Call the method to pause the game and show the tutorial panel
         }
     }
 
-    void PauseGame()
+    void PauseGame() 
     {
-        tutorialPanel.SetActive(true);
-        Time.timeScale = 0f;
+        tutorialPanel.SetActive(true); // Show the tutorial panel
+        Time.timeScale = 0f; // Pause the game
 
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None; // Unlock the cursor
+        Cursor.visible = true; // Make the cursor visible
     }
 
     public void TutorialButton()
     {
-        tutorialPanel.SetActive(false);
-        Time.timeScale = 1f;
-       
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        tutorialPanel.SetActive(false); // Hide the tutorial panel
+        Time.timeScale = 1f; // Resume the game
+
+        Cursor.lockState = CursorLockMode.Locked; // Lock the cursor
+        Cursor.visible = false; // Hide the cursor
     }
 
     // --- SCENE MANAGEMENT --- \\
 
     public void LoadGame()
     {
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(1); // Load the main game scene
     }
 
     public void QuitGame()
     {
-        Debug.Log("Exit Application.");
-        Application.Quit();
+        Debug.Log("Exit Application."); // Log message for quitting the game
+        Application.Quit(); // Quit the application
     }
 }
