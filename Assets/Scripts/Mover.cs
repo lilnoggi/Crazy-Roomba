@@ -5,17 +5,30 @@ using TMPro;
 
 public class Mover : MonoBehaviour
 {
+    // === VARIABLES === \\
     [Header("Settings")]
-    [SerializeField] private float moveSpeed = 10f; // How fast the Roomba can move
-    [SerializeField] int hits = 0; // Amount of times the player has hit furniture
-    [SerializeField] int hitLimit = 0;
-    public int dustCollected; // Amount of dust player collected
-    public int score; // Player's score
+    private const float baseMoveSpeed = 10f; // Base movement speed
+
+    [SerializeField] private float moveSpeed = baseMoveSpeed; // How fast the Roomba can move
+    [SerializeField] int hits = 0;                 // Amount of times the player has hit furniture
+    [SerializeField] int hitLimit = 0;            // Limit before the Roomba breaks down
+    public int dustCollected;                    // Amount of dust player collected
+    public int score;                           // Player's score
+
+    [Header("Capacity Variables")]
+    public int maxCapacity = 10;            // Maximum dust capacity before Roomba needs to empty
+    public int currentCapacity;            // Current dust capacity
+
+    [Header("Disposal Variables")]
+    public bool playerDetection = false; // Whether the player is in the disposal area
+    public GameObject disposalArea;  // Reference to the disposal area object
+    public GameObject binBagPrefab; // Prefab for the bin bag to instantiate
 
     [Header("UI Components")]
-    public TextMeshProUGUI dustCounter; // UI text fore score goes here!
+    public TextMeshProUGUI dustCounter;          // UI text fore score goes here!
     public TextMeshProUGUI furnitureHitCounter; // UI text for amount of furniture hit
-    public TextMeshProUGUI scoreCounter; // UI text for score
+    public TextMeshProUGUI scoreCounter;       // UI text for score
+    public TextMeshProUGUI capacityCounter;   // UI text for dust capacity
 
     [Header("Audio")]
     public AudioClip pickupSound;
@@ -27,11 +40,15 @@ public class Mover : MonoBehaviour
 
     private AudioSource audioSource;
 
+    private bool isBroken =  false; // Prevents speed from being reset while broken
+    private bool isSlowed = false; // Prevents the next fix from being overridden
+    public bool isFull = false;  // New flag for bag status
+
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
 
-        // --- LOGIC FOR AUDIO LOOPING --- \\
+        // === LOGIC FOR AUDIO LOOPING === \\
         if (audioSource != null && vacuumLoop != null)
         {
             audioSource.clip = vacuumLoop; // Set the clip to looping
@@ -43,88 +60,193 @@ public class Mover : MonoBehaviour
     void Update()
     {
         MoveRoomba(); // Roomba movement method
-        UpdateUI(); // Updates the UI output
+        UpdateUI();  // Updates the UI output
+
+        HandleDisposalInput(); // Check for disposal input
     }
 
+    // === ROOMBA MOVEMENT === \\
     void MoveRoomba()
     {
+        // --- Only allow movement if not broken --- \\
+        if (isBroken)
+        {
+            moveSpeed = 0f;
+            return; // Exit the method early if broken
+        }
+
+        float targetSpeed = baseMoveSpeed;
+
+        // --- Apply slowdown capacity penalty --- \\
+        if (currentCapacity >= maxCapacity)
+        {
+            targetSpeed = 5f;
+            isFull = true;
+        }
+        else
+        {
+            isFull = false;
+        }
+
+        // --- Apply slowdown from dust collection --- \\
+        if (isSlowed)
+        {
+            targetSpeed = 2f;
+        }
+
+        // --- Final speed is the calculated target speed --- \\
+        moveSpeed = targetSpeed;
+
         float xValue = Input.GetAxis("Horizontal") * Time.deltaTime; // Get the horizontal keys (A, D, Left, Right)
-        float zValue = Input.GetAxis("Vertical") * Time.deltaTime; // Get vertical movement keys (W, S, Up, Down)
+        float zValue = Input.GetAxis("Vertical") * Time.deltaTime;  // Get vertical movement keys (W, S, Up, Down)
 
         transform.Translate(xValue * moveSpeed, 0f, zValue * moveSpeed); // Movement speed calculation
     }
 
-    // --- COLLIDE WITH FURNITURE --- \\
-    private void OnCollisionEnter(Collision other) // CHANGED from private int to private void
+    // === HANDLE DISPOSAL INPUT === \\
+    void HandleDisposalInput()
     {
-       PlayRandomSound();
-        
-        hits++; // If the player collides with an object, the hit counter increases by 1.
-        score -= 50;
-        hitLimit++;
-        
-        Debug.Log($"Bad Roomba! You hit: {hits} pieces of furniture!"); // Console output.
-        
-        GetComponentInChildren<MeshRenderer>().material.color = Color.red; // The roomba changes red.
-        
-        StartCoroutine(ChangeColour());
-
-        // --- CHECK FOR BREAKAGE --- \\
-        if (hitLimit >= 3)
+        if (playerDetection && Input.GetKeyDown(KeyCode.E))
         {
-            // Stop the current vacuum sound instantly
-            audioSource.Stop();
-
-            // Start the entire break/fix sequence
-            StartCoroutine(BreakVacuumSequence(4.5f)); // 5 is the duration of the "break"
-
-            // Reset the hit limit
-            hitLimit = 0;
+            if (currentCapacity > 0)
+            {
+                moveSpeed = 0f; // Temporarily stop movement
+                EmptyBag(); // Call the method to empty the dust bag
+                moveSpeed = baseMoveSpeed; // Restore movement speed
+            }
+            else
+            {
+                Debug.Log("Dust bag is already empty.");
+            }
         }
     }
 
-    IEnumerator ChangeColour()
+    // === EMPTY DUST BAG METHOD === \\
+    void EmptyBag()
     {
-        yield return new WaitForSeconds(1); // Delay before changing back
-
-        GetComponentInChildren<MeshRenderer>().material.color = Color.black; // Change roomba back to black
+        Debug.Log("Emptying dust bag...");
+        GetComponentInChildren<MeshRenderer>().material.color = Color.yellow;
+        currentCapacity = 0; // Reset capacity
+        UpdateUI();         // Update UI immediately
+        
+        SpawnBinBag(); // Spawn the bin bag
+        StartCoroutine(ChangeColour()); // Change colour back after delay
     }
 
-    // --- COLLIDE WITH DUST --- \\
+    // === SPAWN BIN BAG METHOD === \\
+    void SpawnBinBag()
+    {
+        if (binBagPrefab != null && disposalArea != null)
+        {
+            Vector3 spawnPosition = disposalArea.transform.position + new Vector3(0f, 1.5f, 0f); // Slightly above the disposal area
+            Instantiate(binBagPrefab, spawnPosition, Quaternion.identity); // Spawn the bin bag prefab
+        }
+    }
+
+    // === COLLIDE WITH FURNITURE === \\
+    private void OnCollisionEnter(Collision other) // CHANGED from private int to private void
+    {
+        if (other.gameObject.tag == "Furniture")
+        {
+            if (isBroken) return;
+
+            PlayRandomSound();
+
+            hits++; // If the player collides with an object, the hit counter increases by 1.
+            score -= 50;
+            hitLimit++;
+
+            Debug.Log($"Bad Roomba! You hit: {hits} pieces of furniture!"); // Console output.
+
+            GetComponentInChildren<MeshRenderer>().material.color = Color.red; // The roomba changes red.
+
+            StartCoroutine(ChangeColour()); // Start the colour change coroutine.
+
+            // --- CHECK FOR BREAKAGE --- \\
+            if (hitLimit >= 3)
+            {
+                isBroken = true; // Set broken state to true
+                // Stop the current vacuum sound instantly
+                audioSource.Stop();
+
+                // Start the entire break/fix sequence
+                StartCoroutine(BreakVacuumSequence(4.5f)); // 5 is the duration of the "break"
+
+                // Reset the hit limit
+                hitLimit = 0;
+            }
+        }
+    }
+
+    // === TRIGGER ENTRY || Dust & Disposal === \\
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Dust")
         {
-            StartCoroutine(SlowDown());
+            // --- If Broken or Full, do not collect dust --- \\
+            if (isBroken || currentCapacity >= maxCapacity)
+            {
+                Debug.Log(isBroken ? "Cannot collect dust while broken!" : "Dust bag is full! Please empty.");
+                return; // Exit the method early
+            }
+
+            // --- Capacity Tracking --- \\
+            const int dustCapacityCost = 1; // Each dust collected costs 1 capacity
+            const int dustScore = 10; // How many points each dust is worth
+
+            currentCapacity += dustCapacityCost; // Increase current capacity
+            score += dustScore;                 // Increase score
+            dustCollected++;                   // Increase dust collected
+
+            StartCoroutine(SlowDown()); // Slow down the player temporarily
             PlaySound(pickupSound);
-            dustCollected++;
-            score += 100;
+        }
+
+        // === COLLIDE WITH DISPOSAL AREA === \\
+        if (other.gameObject == disposalArea)
+        {
+            playerDetection = true;
+            Debug.Log("In disposal area. Press 'E' to empty dust bag.");
+        }
+
+        // EVIDENCE HANDLING GOES HERE \\
+    }
+
+    // === TRIGGER EXIT || Disposal Area === \\
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject == disposalArea)
+        {
+            playerDetection = false;
+            Debug.Log("Left disposal area.");
         }
     }
 
+    // === UPDATE UI === \\
     void UpdateUI()
     {
-        dustCounter.text = $"Dust Collected: {dustCollected}"; // displays on screen // updates ui
-        furnitureHitCounter.text = $"Furniture Hit: {hits}"; // Displays
-        scoreCounter.text = $"Score: {score}";
+        dustCounter.text = $"Dust Collected: {dustCollected}";                    // Updates dust collected UI
+        furnitureHitCounter.text = $"Furniture Hit: {hits}";                     // Updates furniture hit UI
+        scoreCounter.text = $"Score: {score}";                                  // Updates score UI
+        capacityCounter.text = $"Capacity: {currentCapacity}/{maxCapacity}"; // Updates capacity UI
     }
 
-    // --- AUDIO --- \\
+    // === AUDIO === \\
     private void PlaySound(AudioClip clip)
     {
-        if (clip != null && audioSource != null)
+        if (clip != null && audioSource != null) // Safety check
         {
-            audioSource.PlayOneShot(clip);
+            audioSource.PlayOneShot(clip); // Play the sound once
         }
     }
 
-    void PlayRandomSound()
+    void PlayRandomSound() // Play a random furniture hit sound
     {
         // --- SAFETY CHECK --- \\ 
         // If the array is null or empty, exit the method immediately
-        if (furnitureHitSounds == null || furnitureHitSounds.Length == 0)
+        if (furnitureHitSounds == null || furnitureHitSounds.Length == 0) // Safety check
         {
-            return;
+            return; // Exit the method if there are no sounds to play
         }
 
         // 1. Get a random index from 0 up to the array length.
@@ -137,17 +259,33 @@ public class Mover : MonoBehaviour
         PlaySound(randomClip);
     }
 
-    // Slow player down when dust is collected
-    IEnumerator SlowDown()
+    // === COROUTINES === \\
+    IEnumerator ChangeColour()
     {
-        moveSpeed = 2f;
-        
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(1); // Delay before changing back
 
-        moveSpeed = 10f;
+        // --- Return to original colour only if not currently in the BreakVaccuumSequence --- \\
+        if (!isBroken)
+        {
+            GetComponentInChildren<MeshRenderer>().material.color = Color.aquamarine; // Change roomba back to orginal colour
+        }
     }
 
-    // The main sequence for stopping and restarting the vacuum
+    // --- Slow player down when dust is collected --- \\
+    IEnumerator SlowDown()
+    {
+        isSlowed = true; // Set the slowed flag to true
+
+        moveSpeed = 2f; // Reduce speed
+
+        yield return new WaitForSeconds(1); // Wait for 1 second
+
+        isSlowed = false; // Reset the slowed flag
+
+        moveSpeed = 10f; // Restore speed
+    }
+
+    // --- The main sequence for stopping and restarting the vacuum --- \\
     IEnumerator BreakVacuumSequence(float delay)
     {
         PlaySound(brokeDown);
@@ -158,7 +296,7 @@ public class Mover : MonoBehaviour
         // Play the vacuum OFF sound
         PlaySound(vacuumOff);
 
-        GetComponentInChildren<MeshRenderer>().material.color = Color.red;
+        GetComponentInChildren<MeshRenderer>().material.color = Color.red; // Change roomba to red to indicate broken state
 
         // 2. Wait for the break period
         yield return new WaitForSeconds(delay);
@@ -168,20 +306,22 @@ public class Mover : MonoBehaviour
         // Play the vacuum on sound
         PlaySound(vacuumOn);
 
-        GetComponentInChildren<MeshRenderer>().material.color = Color.green;
+        GetComponentInChildren<MeshRenderer>().material.color = Color.green; // Change roomba to green to indicate repair
 
         // Wait for the vacuum ON sound to finish
         yield return new WaitForSeconds(0.5f);
 
         // 4. Return to the normal game state
 
-        GetComponentInChildren<MeshRenderer>().material.color = Color.black;
+        GetComponentInChildren<MeshRenderer>().material.color = Color.aquamarine; // Change roomba back to normal colour
+
+        isBroken = false; // Reset broken state
 
         // Resume movement speed
         moveSpeed = 10;
 
         // Restart the looping vacuum sound
-        if (audioSource != null && vacuumLoop != null)
+        if (audioSource != null && vacuumLoop != null) // Safety check
         {
             audioSource.clip = vacuumLoop;
             audioSource.loop = true;

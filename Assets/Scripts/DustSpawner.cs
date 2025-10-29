@@ -17,16 +17,16 @@ public class DustSpawner : MonoBehaviour
 
     void SpawnDust()
     {
-        const int maxAttempts = 50;
+        const int maxAttempts = 50; // Max attempts to find a clear position for each dust
 
-        for (int i = 0; i < numOfDust; i++)
+        for (int i = 0; i < numOfDust; i++) // Loop to spawn the specified number of dust
         {
-            Vector3 spawnPos = Vector3.zero;
-            bool positionFound = false;
+            Vector3 spawnPos = Vector3.zero; // Initialize spawn position
+            bool positionFound = false; // Flag to indicate if a valid position is found
 
-            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            for (int attempt = 0; attempt < maxAttempts; attempt++) // Try to find a valid position
             {
-                spawnPos = GetRandomSpawnPosition();
+                spawnPos = GetRandomSpawnPosition(); // Get a random position within the spawn radius
 
                 // Check if the random position is clear of furniture
                 if (IsPositionClear(spawnPos))
@@ -36,25 +36,25 @@ public class DustSpawner : MonoBehaviour
                 }
             }
 
-            if (positionFound) 
+            if (positionFound) // If a valid position was found, spawn the dust
             {
-                Instantiate(dustPrefab, spawnPos, Quaternion.identity);
+                Instantiate(dustPrefab, spawnPos, Quaternion.identity); // Spawn the dust prefab at the found position
             }
             else
             {
-                Debug.Log("Couldn't find a clear position for dust to spawn!");
+                Debug.Log("Couldn't find a clear position for dust to spawn!"); // Log if no valid position was found after max attempts
             }
         }
     }
 
-    private bool IsPositionClear(Vector3 position)
+    private bool IsPositionClear(Vector3 position) // Check if the position is clear of furniture
     {
         // This checks for colliders within a sphere at the given position,
         // only checking objects on the furnitureLayer
-        bool isOverlapping = Physics.CheckSphere(position, dustRadius, furnitureLayer);
+        bool isOverlapping = Physics.CheckSphere(position, dustRadius, furnitureLayer); // Check for overlap with furniture
 
         // Return true if it is NOT overlapping
-        return !isOverlapping;
+        return !isOverlapping; // Return true if position is clear
     }
 
     ///<summary>
