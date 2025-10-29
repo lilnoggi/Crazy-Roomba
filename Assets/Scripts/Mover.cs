@@ -8,15 +8,15 @@ public class Mover : MonoBehaviour
     // === VARIABLES === \\
     [Header("Settings")]
     [SerializeField] private float moveSpeed = 10f; // How fast the Roomba can move
-    [SerializeField] int hits = 0; // Amount of times the player has hit furniture
-    [SerializeField] int hitLimit = 0;
-    public int dustCollected; // Amount of dust player collected
-    public int score; // Player's score
+    [SerializeField] int hits = 0;                 // Amount of times the player has hit furniture
+    [SerializeField] int hitLimit = 0;            // Limit before the Roomba breaks down
+    public int dustCollected;                    // Amount of dust player collected
+    public int score;                           // Player's score
 
     [Header("UI Components")]
-    public TextMeshProUGUI dustCounter; // UI text fore score goes here!
+    public TextMeshProUGUI dustCounter;          // UI text fore score goes here!
     public TextMeshProUGUI furnitureHitCounter; // UI text for amount of furniture hit
-    public TextMeshProUGUI scoreCounter; // UI text for score
+    public TextMeshProUGUI scoreCounter;       // UI text for score
 
     [Header("Audio")]
     public AudioClip pickupSound;
@@ -44,14 +44,14 @@ public class Mover : MonoBehaviour
     void Update()
     {
         MoveRoomba(); // Roomba movement method
-        UpdateUI(); // Updates the UI output
+        UpdateUI();  // Updates the UI output
     }
 
     // === ROOMBA MOVEMENT === \\
     void MoveRoomba()
     {
         float xValue = Input.GetAxis("Horizontal") * Time.deltaTime; // Get the horizontal keys (A, D, Left, Right)
-        float zValue = Input.GetAxis("Vertical") * Time.deltaTime; // Get vertical movement keys (W, S, Up, Down)
+        float zValue = Input.GetAxis("Vertical") * Time.deltaTime;  // Get vertical movement keys (W, S, Up, Down)
 
         transform.Translate(xValue * moveSpeed, 0f, zValue * moveSpeed); // Movement speed calculation
     }
@@ -92,17 +92,17 @@ public class Mover : MonoBehaviour
         {
             StartCoroutine(SlowDown()); // Slow down the player temporarily
             PlaySound(pickupSound);
-            dustCollected++; // Increases dust collected by 1
-            score += 100; // Increases score by 100
+            dustCollected++;          // Increases dust collected by 1
+            score += 100;            // Increases score by 100
         }
     }
 
     // === UPDATE UI === \\
     void UpdateUI()
     {
-        dustCounter.text = $"Dust Collected: {dustCollected}"; // displays on screen // updates ui
-        furnitureHitCounter.text = $"Furniture Hit: {hits}"; // Displays
-        scoreCounter.text = $"Score: {score}"; 
+        dustCounter.text = $"Dust Collected: {dustCollected}"; // Updates dust collected UI
+        furnitureHitCounter.text = $"Furniture Hit: {hits}";  // Updates furniture hit UI
+        scoreCounter.text = $"Score: {score}";               // Updates score UI
     }
 
     // === AUDIO === \\
