@@ -25,9 +25,9 @@ You are the **Homicide Hoover**, a tiny automated vacuum forced to **clean up bl
 
 ## 🎮 Core Loop (The Three C's)
 
-> **Collect:** The player vacuums items (blood, debris, weapons) to earn points and fill the trash bag.
+> "**Collect:** The player vacuums items (blood, debris, weapons) to earn points and fill the trash bag.
 > **Clog/Penalty:** Hitting furniture or “enemies” fills the **Clog Meter**. Hitting the limit breaks the Roomba (movement stops, a time penalty occurs).
-> **Contain:** When the bag is full, the player must return to a designated drop zone (e.g., the front door) to dispose of the trash bag and start fresh.
+> **Contain:** When the bag is full, the player must return to a designated drop zone (e.g., the front door) to dispose of the trash bag and start fresh."
 
 ---
 
