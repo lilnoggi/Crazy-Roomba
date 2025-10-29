@@ -1762,9 +1762,9 @@ GameObject:
   - component: {fileID: 391122729}
   - component: {fileID: 391122728}
   - component: {fileID: 391122727}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Floor
-  m_TagString: Untagged
+  m_TagString: DropZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2282,42 +2282,6 @@ MonoBehaviour:
   vacuumOff: {fileID: 8300000, guid: d291c91355c9c63449484445743cd169, type: 3}
   vacuumOn: {fileID: 8300000, guid: 370ff02ec0632f248bd179102dbfca07, type: 3}
   brokeDown: {fileID: 8300000, guid: 54e2c64de84748946ad820c9ff5fa570, type: 3}
---- !u!114 &500659558
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 500659552}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 94d550d7a7f21344b94b3e10a534cbce, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &500659559
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 500659552}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b4cbc4b26511f9644b87cd13231fc2ec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Fading
---- !u!114 &500659560
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 500659552}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7179cc8eb8b7f7498e77caf81d7106b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameStarts
 --- !u!82 &500659561
 AudioSource:
   m_ObjectHideFlags: 0
@@ -12166,15 +12130,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 229550197710788812, guid: 0859fb3b788891c4e81e9901db471632, type: 3}
       insertIndex: -1
       addedObject: {fileID: 500659557}
-    - targetCorrespondingSourceObject: {fileID: 229550197710788812, guid: 0859fb3b788891c4e81e9901db471632, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 500659558}
-    - targetCorrespondingSourceObject: {fileID: 229550197710788812, guid: 0859fb3b788891c4e81e9901db471632, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 500659560}
-    - targetCorrespondingSourceObject: {fileID: 229550197710788812, guid: 0859fb3b788891c4e81e9901db471632, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 500659559}
     - targetCorrespondingSourceObject: {fileID: 229550197710788812, guid: 0859fb3b788891c4e81e9901db471632, type: 3}
       insertIndex: -1
       addedObject: {fileID: 500659561}
