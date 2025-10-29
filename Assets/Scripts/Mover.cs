@@ -19,6 +19,11 @@ public class Mover : MonoBehaviour
     public int maxCapacity = 10;            // Maximum dust capacity before Roomba needs to empty
     public int currentCapacity;            // Current dust capacity
 
+    [Header("Disposal Variables")]
+    public bool playerDetection = false; // Whether the player is in the disposal area
+    public GameObject disposalArea;  // Reference to the disposal area object
+    public GameObject binBagPrefab; // Prefab for the bin bag to instantiate
+
     [Header("UI Components")]
     public TextMeshProUGUI dustCounter;          // UI text fore score goes here!
     public TextMeshProUGUI furnitureHitCounter; // UI text for amount of furniture hit
@@ -56,6 +61,8 @@ public class Mover : MonoBehaviour
     {
         MoveRoomba(); // Roomba movement method
         UpdateUI();  // Updates the UI output
+
+        HandleDisposalInput(); // Check for disposal input
     }
 
     // === ROOMBA MOVEMENT === \\
@@ -96,6 +103,46 @@ public class Mover : MonoBehaviour
         transform.Translate(xValue * moveSpeed, 0f, zValue * moveSpeed); // Movement speed calculation
     }
 
+    // === HANDLE DISPOSAL INPUT === \\
+    void HandleDisposalInput()
+    {
+        if (playerDetection && Input.GetKeyDown(KeyCode.E))
+        {
+            if (currentCapacity > 0)
+            {
+                moveSpeed = 0f; // Temporarily stop movement
+                EmptyBag(); // Call the method to empty the dust bag
+                moveSpeed = baseMoveSpeed; // Restore movement speed
+            }
+            else
+            {
+                Debug.Log("Dust bag is already empty.");
+            }
+        }
+    }
+
+    // === EMPTY DUST BAG METHOD === \\
+    void EmptyBag()
+    {
+        Debug.Log("Emptying dust bag...");
+        GetComponentInChildren<MeshRenderer>().material.color = Color.yellow;
+        currentCapacity = 0; // Reset capacity
+        UpdateUI();         // Update UI immediately
+        
+        SpawnBinBag(); // Spawn the bin bag
+        StartCoroutine(ChangeColour()); // Change colour back after delay
+    }
+
+    // === SPAWN BIN BAG METHOD === \\
+    void SpawnBinBag()
+    {
+        if (binBagPrefab != null && disposalArea != null)
+        {
+            Vector3 spawnPosition = disposalArea.transform.position + new Vector3(0f, 1.5f, 0f); // Slightly above the disposal area
+            Instantiate(binBagPrefab, spawnPosition, Quaternion.identity); // Spawn the bin bag prefab
+        }
+    }
+
     // === COLLIDE WITH FURNITURE === \\
     private void OnCollisionEnter(Collision other) // CHANGED from private int to private void
     {
@@ -131,7 +178,7 @@ public class Mover : MonoBehaviour
         }
     }
 
-    // === COLLIDE WITH DUST === \\
+    // === TRIGGER ENTRY || Dust & Disposal === \\
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Dust")
@@ -155,7 +202,24 @@ public class Mover : MonoBehaviour
             PlaySound(pickupSound);
         }
 
+        // === COLLIDE WITH DISPOSAL AREA === \\
+        if (other.gameObject == disposalArea)
+        {
+            playerDetection = true;
+            Debug.Log("In disposal area. Press 'E' to empty dust bag.");
+        }
+
         // EVIDENCE HANDLING GOES HERE \\
+    }
+
+    // === TRIGGER EXIT || Disposal Area === \\
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject == disposalArea)
+        {
+            playerDetection = false;
+            Debug.Log("Left disposal area.");
+        }
     }
 
     // === UPDATE UI === \\
@@ -164,7 +228,7 @@ public class Mover : MonoBehaviour
         dustCounter.text = $"Dust Collected: {dustCollected}";                    // Updates dust collected UI
         furnitureHitCounter.text = $"Furniture Hit: {hits}";                     // Updates furniture hit UI
         scoreCounter.text = $"Score: {score}";                                  // Updates score UI
-        capacityCounter.text = $"Capacity: {dustCollected}/{maxCapacity}"; // Updates capacity UI
+        capacityCounter.text = $"Capacity: {currentCapacity}/{maxCapacity}"; // Updates capacity UI
     }
 
     // === AUDIO === \\
@@ -242,7 +306,7 @@ public class Mover : MonoBehaviour
         // Play the vacuum on sound
         PlaySound(vacuumOn);
 
-        GetComponentInChildren<MeshRenderer>().material.color = Color.blue; // Change roomba to green to indicate repair
+        GetComponentInChildren<MeshRenderer>().material.color = Color.green; // Change roomba to green to indicate repair
 
         // Wait for the vacuum ON sound to finish
         yield return new WaitForSeconds(0.5f);
