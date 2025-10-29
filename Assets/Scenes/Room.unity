@@ -1281,22 +1281,22 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Crazy Roomba!
+  m_text: Homicide Hoover
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: bb73de47389a6524197e52a2b091a63b, type: 2}
-  m_sharedMaterial: {fileID: -6203524731902705976, guid: bb73de47389a6524197e52a2b091a63b, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 9274aafe868c41145bac0a04f2a3eb3c, type: 2}
+  m_sharedMaterial: {fileID: 4556849481567790704, guid: 9274aafe868c41145bac0a04f2a3eb3c, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
-  m_enableVertexGradient: 0
+    rgba: 4278190251
+  m_fontColor: {r: 0.6698113, g: 0, b: 0, a: 1}
+  m_enableVertexGradient: 1
   m_colorMode: 3
   m_fontColorGradient:
     topLeft: {r: 1, g: 1, b: 1, a: 1}
-    topRight: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 0.5566038, g: 0, b: 0, a: 1}
     bottomLeft: {r: 1, g: 1, b: 1, a: 1}
     bottomRight: {r: 1, g: 1, b: 1, a: 1}
   m_fontColorGradientPreset: {fileID: 0}
@@ -1308,8 +1308,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 80
-  m_fontSizeBase: 80
+  m_fontSize: 90.2
+  m_fontSizeBase: 90.2
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1318,9 +1318,9 @@ MonoBehaviour:
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 2.8
   m_wordSpacing: 0
-  m_lineSpacing: -80
+  m_lineSpacing: 0.9
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
@@ -1419,8 +1419,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'How To Play:'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 2c916e8de2499b343986c35c7ac0890a, type: 2}
-  m_sharedMaterial: {fileID: 7602914501283402352, guid: 2c916e8de2499b343986c35c7ac0890a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37457d228668f8646912a219ee4e484e, type: 2}
+  m_sharedMaterial: {fileID: -7059705137014359523, guid: 37457d228668f8646912a219ee4e484e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1444,8 +1444,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 80
-  m_fontSizeBase: 80
+  m_fontSize: 132
+  m_fontSizeBase: 132
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
