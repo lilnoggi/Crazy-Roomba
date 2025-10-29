@@ -7,7 +7,7 @@ public class DustCollection : MonoBehaviour
     {
         if (other.tag == "Player")
         {
-            Destroy(gameObject);
+            Destroy(gameObject); // Destroy the dust object upon collision with the player
         }
     }
 }
