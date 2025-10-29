@@ -29,6 +29,7 @@ public class Mover : MonoBehaviour
     public TextMeshProUGUI furnitureHitCounter; // UI text for amount of furniture hit
     public TextMeshProUGUI scoreCounter;       // UI text for score
     public TextMeshProUGUI capacityCounter;   // UI text for dust capacity
+    public GameObject promptCanvas;          // UI canvas for prompts
 
     [Header("Audio")]
     public AudioClip pickupSound;
@@ -205,6 +206,7 @@ public class Mover : MonoBehaviour
         // === COLLIDE WITH DISPOSAL AREA === \\
         if (other.gameObject == disposalArea)
         {
+            promptCanvas.SetActive(true); // Show prompt UI
             playerDetection = true;
             Debug.Log("In disposal area. Press 'E' to empty dust bag.");
         }
@@ -217,6 +219,7 @@ public class Mover : MonoBehaviour
     {
         if (other.gameObject == disposalArea)
         {
+            promptCanvas.SetActive(false); // Hide prompt UI
             playerDetection = false;
             Debug.Log("Left disposal area.");
         }
