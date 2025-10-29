@@ -1,63 +1,175 @@
-# Homicide Hoover ![Unity](https://img.shields.io/badge/Engine-Unity-20232A?logo=unity&logoColor=white) ![C#](https://img.shields.io/badge/Language-C%23-239120?logo=c-sharp&logoColor=white)
+# 🧹 Homicide Hoover 
+![Unity](https://img.shields.io/badge/Engine-Unity-20232A?logo=unity&logoColor=white) 
+![C#](https://img.shields.io/badge/Language-C%23-239120?logo=c-sharp&logoColor=white)
+![Status](https://img.shields.io/badge/Build-Pre--Alpha-orange)
 
-You are the **Homicide Hoover**, a tiny automated vacuum forced to **clean up bloody crime scenes** before the police arrive. Vacuum up evidence and maintain your structural integrity while dodging furniture to achieve the perfect five-star clean.
+> “You were built by a shady cleaning company that *specialises in crime scene recovery*, but one night... **the blood just keeps coming.**”
 
 ---
 
-*“You were built by a shady cleaning company that “specialises in crime scene recovery”, but one night… the blood just keeps coming.”*
+## 💡 Overview
 
----
-
-## 📝 Details
+You are the **Homicide Hoover**, a tiny automated vacuum forced to **clean up bloody crime scenes** before the police arrive.  
+Vacuum up evidence, dodge hazards, and maintain your structural integrity to achieve the perfect **Five-Star Clean**.
 
 | Item | Info |
 |------|------|
 | **Engine** | Unity |
-|**Editor Version** | 6000.2.10f1 |
+| **Version** | 6000.2.10f1 |
 | **Language** | C# |
-| **Platform** | PC (Windows), |
-| **Assets** | 3D models / stylized lighting |
-| **Genre** | Casual Cleaning Simulator / Arcade Survival (Comedic Dark Humour) |
-| **Theme** | Unlikely Hero / Hiding in Plain Sight / Crime Scene Clean-Up |
-| **Build Status** | Pre-Alpha — Prototype in development |
+| **Platform** | PC (Windows) |
+| **Genre** | Casual Cleaning Simulator / Arcade Survival |
+| **Tone** | Comedic Dark Humour |
+| **Status** | Pre-Alpha (Prototype) |
 
 ---
 
-## 🎮 Core Loop (The Three C's)
+## 🎮 Core Loop (The Three C’s)
 
-> “**Collect:** The player vacuums items (blood, debris, weapons) to earn points and fill the trash bag.
-> **Clog/Penalty:** Hitting furniture or enemies fills the **Clog Meter**. Hitting the limit breaks the Roomba (movement stops, a time penalty occurs). 
-> **Contain:** When the bag is full, the player must return to a designated drop zone (e.g., the front door) to dispose of the trash bag and start fresh.”
+> **Collect** → **Clog** → **Contain**
 
----
-
-## ⚙️ Mechanics
-
-| Mechanic | Detail | Game Integration |
-|------|------|------|
-| Player Movement | WASD controls the Roomba. Movement is slower when the Clog Meter is high or the bag is nearly full. | Implemented via Mover.cs |
-| Vacuum Action | Auto-collects items when the collider passes over them (OnTriggerEnter). | Implemented via OnTriggerEnter in Mover.cs and DustCollection.cs |
-| The Clog Meter | Hits/Penalty: Hitting furniture increases the hitLimit (Max 3 hits before shutdown). | Implemented via OnCollisionEnter and BreakVacuumSequence Coroutine. |
-| Trash Bag Capacity | Max Capacity: 30 units. Items collected add units (see Section 2.3). | Requires a new maxCapacity variable and a bag drop zone mechanic. |
-| Bag Drop | When currentCapacity >= maxCapacity, a “Drop Bag” prompt appears near the designated zone. Dropping the bag resets capacity to 0, granting bonus points, and spawns a physical “Trash Bag” object to be avoided. | Requires: Raycast/trigger for Drop Zone, and a new Trash Bag Prefab. |
+1. **Collect:** Vacuum up items (blood, debris, weapons) to earn score and fill your trash bag.  
+2. **Clog:** Hitting furniture or enemies fills the **Clog Meter**. Too many hits = system shutdown.  
+3. **Contain:** When your bag is full, return to the drop zone to dispose of evidence, reset capacity, and continue cleaning.
 
 ---
 
-## 📸 Screenshots / GIFs
+## ⚙️ Key Mechanics
 
-> _(Coming soon)_
+| Mechanic | Description | Integration |
+|-----------|--------------|--------------|
+| **Movement** | WASD controls the Hoover. Speed decreases with higher clog or bag capacity. | `Mover.cs` |
+| **Vacuum Action** | Auto-collects items via collider triggers. | `OnTriggerEnter` in `Mover.cs` & `DustCollection.cs` |
+| **Clog Meter** | Tracks collisions. 3 hits = shutdown and time penalty. | `OnCollisionEnter`, `BreakVacuumSequence()` |
+| **Bag Capacity** | Max 30 units. Items increase unit count. | `maxCapacity` variable in progress. |
+| **Drop Zone** | Dispose full bags for score bonuses and spawn physical “Trash Bags” to avoid. | Requires `Raycast`/trigger zone. |
+
+---
+
+## 🧼 Items to Clean
+
+| Item | Score | Capacity | Notes |
+|------|--------|-----------|-------|
+| Dust/Dirt | +10 | 1 | Common debris |
+| Bloody Footprints | +25 | 1 | Found across rooms |
+| Blood Splatter | +50 | 2 | Near “victim” props |
+| Weapon/Evidence | +200 | 5 | Unique per level |
+
+---
+
+## 🚨 Hazards & Enemies
+
+| Hazard | Description | Penalty |
+|---------|--------------|----------|
+| **Furniture** | Collisions fill Clog Meter. | Minor slowdown |
+| **Patrolling Guards** | Move in fixed loops with small FOV. | Police timer drops by -20s when spotted |
+| **Mops / Buckets** | Instant clog. | System shutdown |
+
+---
+
+## 🕹️ Progression & Levels
+
+### ⭐ Level 1 – *The Suburban House*  
+> Tutorial & Intro  
+- Setting: Cozy suburban home with carpet (slow movement)  
+- Goal: 3,000 points  
+- Drop Zone: Front door mat  
+- Hazards: Chairs, rugs  
+
+### 💎 Level 2 – *The High-Roller Hotel Room*  
+> Speed & Precision  
+- Goal: 5,500 points  
+- Hazards: Glass tables, sharp furniture corners  
+- Evidence: Diamond ring, shell casing  
+- Drop Zone: Laundry hamper  
+
+### 🎰 Level 3 – *The Casino Back Office*  
+> Complexity & Stealth  
+- Goal: 8,000 points  
+- Hazards: Server racks, rolling chairs, patrolling guard  
+- Drop Zone: Hidden garbage chute  
+
+---
+
+## 🧭 Ranking System
+
+| Rank | Requirement | Reward |
+|------|--------------|--------|
+| ⭐⭐⭐⭐⭐ | ≥120% score goal, <3 clogs, 0 dropped bags | Bonus Time Multiplier + unlock next level |
+| ⭐⭐⭐⭐ | ≥100% score goal, ≤5 clogs | Unlock next level |
+| ⭐⭐⭐ | ≥80% score goal | Base pass |
+| ☠ Failure ☠ | Timer reaches 0 or 6+ clogs | Retry level |
+
+---
+
+## 🧩 User Interface
+
+| Element | Location | Function |
+|----------|-----------|-----------|
+| Police Timer | Top Right | Flashes red under 20s |
+| Score / Goal | Top Left | Turns green when goal met |
+| Clog Meter | Bottom Right | Tracks structural integrity |
+| Capacity Meter | Bottom Left | Warns when full |
+| Drop Prompt | Near Drop Zone | Appears at ≥90% capacity |
+
+**Menus:**  
+- **Main Menu:** Roomba cleans logo with jazz music. Sticky-note options: *Play*, *Options*, *Quit*.  
+- **Pause Menu:** Snapshot freeze with “Scene Contained (For Now).”  
+- **Post-Level:** Animated clipboard summary.  
+- **Failure:** Sirens, “EVIDENCE COMPROMISED”, Retry option.
+
+---
+
+## 🎨 Art & Audio Direction
+
+| Category | Description |
+|-----------|--------------|
+| **Art Style** | Low-poly 3D, exaggerated lighting, comedic noir tone |
+| **Palette** | Neutral tones with sharp red/blue/yellow accents |
+| **Lighting** | Harsh “crime scene” contrast; flickers under pressure |
+| **Animation** | Smooth, floaty motion; furniture wiggles when hit |
+| **Soundtrack** | Jazz noir meets Katamari — comedic tension music |
+| **SFX** | Vacuum pops, alert beeps, collision clunks |
+| **Failure Jingle** | Record scratch + muffled siren fade-out |
+
+---
+
+## 🧠 Inspirations
+
+- 🧽 **PowerWash Simulator** – satisfying clean-up loop  
+- 💀 **Hotline Miami** – dark comedy tone, tension  
+- 🌀 **Untitled Goose Game** – silly physicality, slapstick chaos  
+
+---
+
+## 🧰 Development Notes
+
+- **Scripts:** `Mover.cs`, `DustCollection.cs`, `GameManager.cs`
+- **Next Goals:**  
+  - Implement Bag Drop Zone logic  
+  - Add Clog Meter UI feedback  
+  - Prototype Level 1 layout  
+
+---
+
+## 📸 Media
+
+> _(Screenshots, gifs, and trailers coming soon!)_
 
 ---
 
 ## 📝 License
 
-This project is currently private and under development. Licensing will be updated closer to release.
+This project is currently **private and under active development.**  
+License terms will be finalised closer to release.
 
 ---
 
 ## 💬 Feedback & Contributions
 
-Feedback, testing, and creative ideas are always welcome.  
-If you'd like to contribute feedback, please reach out!
+Feedback, testing, and creative ideas are always welcome!  
+Please open an issue or reach out directly to share suggestions.
 
 ---
+
+**“Horror, but make it clean.”**
