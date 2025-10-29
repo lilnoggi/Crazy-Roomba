@@ -67,7 +67,7 @@ public class Mover : MonoBehaviour
         
         GetComponentInChildren<MeshRenderer>().material.color = Color.red; // The roomba changes red.
         
-        StartCoroutine(ChangeColour());
+        StartCoroutine(ChangeColour()); // Start the colour change coroutine.
 
         // --- CHECK FOR BREAKAGE --- \\
         if (hitLimit >= 3)
@@ -95,10 +95,10 @@ public class Mover : MonoBehaviour
     {
         if (other.tag == "Dust")
         {
-            StartCoroutine(SlowDown());
+            StartCoroutine(SlowDown()); // Slow down the player temporarily
             PlaySound(pickupSound);
-            dustCollected++;
-            score += 100;
+            dustCollected++; // Increases dust collected by 1
+            score += 100; // Increases score by 100
         }
     }
 
@@ -106,25 +106,25 @@ public class Mover : MonoBehaviour
     {
         dustCounter.text = $"Dust Collected: {dustCollected}"; // displays on screen // updates ui
         furnitureHitCounter.text = $"Furniture Hit: {hits}"; // Displays
-        scoreCounter.text = $"Score: {score}";
+        scoreCounter.text = $"Score: {score}"; 
     }
 
     // --- AUDIO --- \\
     private void PlaySound(AudioClip clip)
     {
-        if (clip != null && audioSource != null)
+        if (clip != null && audioSource != null) // Safety check
         {
-            audioSource.PlayOneShot(clip);
+            audioSource.PlayOneShot(clip); // Play the sound once
         }
     }
 
-    void PlayRandomSound()
+    void PlayRandomSound() // Play a random furniture hit sound
     {
         // --- SAFETY CHECK --- \\ 
         // If the array is null or empty, exit the method immediately
-        if (furnitureHitSounds == null || furnitureHitSounds.Length == 0)
+        if (furnitureHitSounds == null || furnitureHitSounds.Length == 0) // Safety check
         {
-            return;
+            return; // Exit the method if there are no sounds to play
         }
 
         // 1. Get a random index from 0 up to the array length.
@@ -140,11 +140,11 @@ public class Mover : MonoBehaviour
     // Slow player down when dust is collected
     IEnumerator SlowDown()
     {
-        moveSpeed = 2f;
-        
-        yield return new WaitForSeconds(1);
+        moveSpeed = 2f; // Reduce speed
 
-        moveSpeed = 10f;
+        yield return new WaitForSeconds(1); // Wait for 1 second
+
+        moveSpeed = 10f; // Restore speed
     }
 
     // The main sequence for stopping and restarting the vacuum
@@ -158,7 +158,7 @@ public class Mover : MonoBehaviour
         // Play the vacuum OFF sound
         PlaySound(vacuumOff);
 
-        GetComponentInChildren<MeshRenderer>().material.color = Color.red;
+        GetComponentInChildren<MeshRenderer>().material.color = Color.red; // Change roomba to red to indicate broken state
 
         // 2. Wait for the break period
         yield return new WaitForSeconds(delay);
@@ -168,20 +168,20 @@ public class Mover : MonoBehaviour
         // Play the vacuum on sound
         PlaySound(vacuumOn);
 
-        GetComponentInChildren<MeshRenderer>().material.color = Color.green;
+        GetComponentInChildren<MeshRenderer>().material.color = Color.green; // Change roomba to green to indicate repair
 
         // Wait for the vacuum ON sound to finish
         yield return new WaitForSeconds(0.5f);
 
         // 4. Return to the normal game state
 
-        GetComponentInChildren<MeshRenderer>().material.color = Color.aquamarine;
+        GetComponentInChildren<MeshRenderer>().material.color = Color.aquamarine; // Change roomba back to normal colour
 
         // Resume movement speed
         moveSpeed = 10;
 
         // Restart the looping vacuum sound
-        if (audioSource != null && vacuumLoop != null)
+        if (audioSource != null && vacuumLoop != null) // Safety check
         {
             audioSource.clip = vacuumLoop;
             audioSource.loop = true;
