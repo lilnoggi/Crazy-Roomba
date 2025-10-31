@@ -25,7 +25,7 @@ public class CameraMovement : MonoBehaviour
     void RotateCamera()
     {
         // Rotate the camera 90 degrees around the Y-axis
-        transform.RotateAround(player.transform.position, Vector3.up, 90f);
+        transform.RotateAround(player.transform.position, Vector3.up, -90f);
         // Optional: Smooth rotation can be implemented here if needed
     }
 }

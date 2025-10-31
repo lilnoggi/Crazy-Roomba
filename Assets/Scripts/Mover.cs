@@ -48,9 +48,13 @@ public class Mover : MonoBehaviour
 
     private AudioSource audioSource;
 
+    [Header("State Flags")]
     private bool isBroken =  false; // Prevents speed from being reset while broken
     private bool isSlowed = false; // Prevents the next fix from being overridden
     public bool isFull = false;  // New flag for bag status
+
+    private Transform cameraTransform; // Reference to the main camera's transform
+    private Vector3 movement;          // Movement vector
 
     private void Awake()
     {
@@ -63,14 +67,33 @@ public class Mover : MonoBehaviour
             audioSource.loop = true;      // Enable looping
             audioSource.Play();          // Start the loop
         }
+
+        // === MAIN CAMERA REFERENCE === \\
+        // Find & store the main camera's transform \\
+        if (Camera.main != null)
+        {
+            cameraTransform = Camera.main.transform; // gets camera transform
+        }
+        else
+        {
+            Debug.LogError("CAMERA NOT FOUND!!!!"); // camera is not placed in the inspector
+        }
     }
 
     void Update()
     {
-        MoveRoomba(); // Roomba movement method
         UpdateUI();  // Updates the UI output
 
         HandleDisposalInput(); // Check for disposal input
+
+        // === CAMERA INFLUENCE ON MOVEMENT === \\
+        // Get the RAW input values
+        Vector3 rawInput = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical")).normalized;
+
+        // Convert the raw input to be relative to the camera's orientation
+        movement = GetCameraRelativeMovement(rawInput);
+
+        MoveRoomba(); // Roomba movement method
     }
 
     // === ROOMBA MOVEMENT === \\
@@ -105,10 +128,31 @@ public class Mover : MonoBehaviour
         // --- Final speed is the calculated target speed --- \\
         moveSpeed = targetSpeed;
 
-        float xValue = Input.GetAxis("Horizontal") * Time.deltaTime; // Get the horizontal keys (A, D, Left, Right)
-        float zValue = Input.GetAxis("Vertical") * Time.deltaTime;  // Get vertical movement keys (W, S, Up, Down)
+        //float xValue = Input.GetAxis("Horizontal") * Time.deltaTime; // Get the horizontal keys (A, D, Left, Right) // Commented out for new HandleRotaiton()
+        //float zValue = Input.GetAxis("Vertical") * Time.deltaTime;  // Get vertical movement keys (W, S, Up, Down)
 
-        transform.Translate(xValue * moveSpeed, 0f, zValue * moveSpeed); // Movement speed calculation
+        // =-= FIX: APPLY MOVEMENT VECTOR DIRECTLY =-= \\
+        // Apply the camera-relative movement vector 'movement' to the position \\
+        // The movement vector is already calculated in Update() based on input \\
+        transform.Translate(movement * moveSpeed * Time.deltaTime, Space.World); // Movement speed calculation
+    }
+
+    // Camera rotation influences player movement direction \\
+    Vector3 GetCameraRelativeMovement(Vector3 rawInput)
+    {
+        if (cameraTransform == null || rawInput.magnitude < 0.1f)
+        {
+            return Vector3.zero; // no camera or no input, return no movement
+        }
+
+        // Get the camera's Y rotation 
+        Quaternion cameraRotation = Quaternion.Euler(0, cameraTransform.eulerAngles.y, 0);
+
+        // Rotate the input vector (forward/backward/strafe) by the camera's rotation
+        Vector3 newMovement = cameraRotation * new Vector3(rawInput.x, 0f, rawInput.z);
+
+        // Keep movement vector normalised
+        return newMovement.normalized;
     }
 
     // === HANDLE DISPOSAL INPUT === \\
