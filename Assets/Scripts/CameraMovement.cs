@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 //_______________________\\_____________________\\
@@ -9,24 +10,46 @@ using UnityEngine;
 public class CameraMovement : MonoBehaviour
 {
     // VARIABLES \\
-    public float rotationSpeed = 5f; // Speed of camera rotation
+    public float rotationDuration = 0.3f; // Speed of camera rotation
     public GameObject player; // Reference to the player object
+
+    private bool isRotating = false; // Flag to check if rotation is in progress
+    private const float targetAngle = -90f; // Target angle for rotation 
 
     private void Update()
     {
         // Check for "R" key press to rotate the camera
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.R) && !isRotating)
         {
-            RotateCamera();
+            StartCoroutine(RotateCameraSmoothly(targetAngle)); 
         }
     }
 
-    // METHOD TO ROTATE CAMERA \\
-    void RotateCamera()
+    // === COROUTINE FOR SMOOTH ROTATION === \\
+    IEnumerator RotateCameraSmoothly(float angle)
     {
-        // Rotate the camera 90 degrees around the Y-axis
-        transform.RotateAround(player.transform.position, Vector3.up, -90f);
-        // Optional: Smooth rotation can be implemented here if needed
+        isRotating = true; // Set rotation flag to true
+        float timeElapsed = 0f; // Time elapsed since the start of rotation
+
+        // 1. Define start and end rotation
+        // FIX: Use localRotation to read the rotation relative to the Roomba
+        Quaternion startRotation = transform.localRotation;
+
+        // Calculate the target rotation based on the current rotation + the desired angle around Vector3.up (Y-axis)
+        Quaternion targetRotation = startRotation * Quaternion.Euler(0, angle, 0);
+
+        // 2. Interpolate over the duration
+        while (timeElapsed < rotationDuration)
+        {
+            // FIX: Use localRotation to apply the rotation relative to the Roomba
+            transform.localRotation = Quaternion.Slerp(startRotation, targetRotation, timeElapsed / rotationDuration);
+            timeElapsed += Time.deltaTime; // Increment elapsed time
+            yield return null; // Wait until next frame
+        }
+
+        // 3. Snap to the final position to avoid floating point errors
+        transform.localRotation = targetRotation; // FIX: Use localRotation again
+
+        isRotating = false; // Reset rotation flag
     }
 }
-
