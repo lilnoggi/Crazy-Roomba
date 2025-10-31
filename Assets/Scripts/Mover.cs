@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
+//_____________________________________\\
+// PLAYER SCRIPT                        \\_______\\
+// This script handles the Roomba movement logic. \\
+// It also manages dust collection, furniture      \\
+// collisions, and disposal mechanics.              \\
+//___________________________________________________\\
+
 public class Mover : MonoBehaviour
 {
     // === VARIABLES === \\
