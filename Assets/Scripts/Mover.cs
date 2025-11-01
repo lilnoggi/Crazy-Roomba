@@ -45,6 +45,7 @@ public class Mover : MonoBehaviour
     public AudioClip vacuumOff;
     public AudioClip vacuumOn;
     public AudioClip brokeDown;
+    public AudioClip disposal;
 
     private AudioSource audioSource;
 
@@ -419,9 +420,11 @@ public class Mover : MonoBehaviour
         // Play the vacuum OFF sound
         PlaySound(vacuumOff);
 
+        PlaySound(disposal);
+
         GetComponentInChildren<MeshRenderer>().material.color = Color.yellow; // Change roomba to yellow to indicate emptying
 
-        yield return new WaitForSeconds(5); // Simulate time taken to empty bag
+        yield return new WaitForSeconds(9); // Simulate time taken to empty bag and audio to end
 
         EmptyBag(); // Call the empty bag method
 
