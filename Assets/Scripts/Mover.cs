@@ -56,8 +56,12 @@ public class Mover : MonoBehaviour
     private Transform cameraTransform; // Reference to the main camera's transform
     private Vector3 movement;          // Movement vector
 
+    private Rigidbody rb; // Reference to the Rigidbody component
+
     private void Awake()
     {
+        rb = GetComponent<Rigidbody>(); // Get the Rigidbody component
+
         audioSource = GetComponent<AudioSource>();
 
         // === LOGIC FOR AUDIO LOOPING === \\
@@ -134,7 +138,23 @@ public class Mover : MonoBehaviour
         // =-= FIX: APPLY MOVEMENT VECTOR DIRECTLY =-= \\
         // Apply the camera-relative movement vector 'movement' to the position \\
         // The movement vector is already calculated in Update() based on input \\
-        transform.Translate(movement * moveSpeed * Time.deltaTime, Space.World); // Movement speed calculation
+        //transform.Translate(movement * moveSpeed * Time.deltaTime, Space.World); // Movement speed calculation // Commented out for Rigidbody movement
+
+        // --- RIGIDBODY MOVEMENT --- \\
+        // Set the velocity directly (less "drifty" than Translate)
+        if (movement.magnitude > 0.1f)
+        {
+            // Apply new calculated velocity in the direction of camera-relative input
+            Vector3 desiredVelocity = movement * moveSpeed;
+
+            // Apply the velocity while preserving existing Y velocity (gravity)
+            rb.velocity = new Vector3(desiredVelocity.x, rb.velocity.y, desiredVelocity.z); // Preserve existing Y velocity (gravity)
+        }
+        else
+        {
+            // No input, stop horizontal movement
+            rb.velocity = Vector3.zero; // Stop horizontal movement
+        }
     }
 
     // Camera rotation influences player movement direction \\
@@ -350,7 +370,7 @@ public class Mover : MonoBehaviour
         // Play the vacuum OFF sound
         PlaySound(vacuumOff);
 
-        GetComponentInChildren<MeshRenderer>().material.color = Color.red; // Change roomba to red to indicate broken state
+        GetComponentInChildren<MeshRenderer>().material.color = Color.black; // Change roomba to red to indicate broken state
 
         // 2. Wait for the break period
         yield return new WaitForSeconds(delay);
