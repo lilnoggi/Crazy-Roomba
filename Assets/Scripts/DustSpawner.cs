@@ -1,5 +1,10 @@
 using UnityEngine;
 
+//_____________________________________\\
+//  DUST SPAWNER SCRIPT  \\
+// This script spawns dust objects randomly within a defined area, avoiding furniture. \\
+//_____________________________________\\
+
 public class DustSpawner : MonoBehaviour
 {
     public GameObject dustPrefab;
@@ -15,6 +20,7 @@ public class DustSpawner : MonoBehaviour
         SpawnDust();
     }
 
+    // === DUST SPAWNING LOGIC === \\
     void SpawnDust()
     {
         const int maxAttempts = 50; // Max attempts to find a clear position for each dust
@@ -47,6 +53,7 @@ public class DustSpawner : MonoBehaviour
         }
     }
 
+    // === CHECK IF POSITION IS CLEAR OF FURNITURE === \\
     private bool IsPositionClear(Vector3 position) // Check if the position is clear of furniture
     {
         // This checks for colliders within a sphere at the given position,

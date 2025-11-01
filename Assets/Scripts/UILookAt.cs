@@ -1,8 +1,8 @@
 using UnityEngine;
 
 //_____________________________________\\
-//  This script makes a UI element always  //
-//  face the camera in a 3D space.        //
+//  This script makes a UI element always  \\
+//  face the camera in a 3D space.        \\
 //_____________________________________\\
 
 public class UILookAt : MonoBehaviour
