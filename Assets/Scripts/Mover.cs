@@ -52,6 +52,7 @@ public class Mover : MonoBehaviour
     private bool isBroken =  false; // Prevents speed from being reset while broken
     private bool isSlowed = false; // Prevents the next fix from being overridden
     public bool isFull = false;  // New flag for bag status
+    private bool isEmptying = false; // Prevents multiple emptying actions
 
     private Transform cameraTransform; // Reference to the main camera's transform
     private Vector3 movement;          // Movement vector
@@ -106,8 +107,15 @@ public class Mover : MonoBehaviour
         // --- Only allow movement if not broken --- \\
         if (isBroken)
         {
-            moveSpeed = 0f;
+            rb.velocity = Vector3.zero; // Stop movement
             return; // Exit the method early if broken
+        }
+
+        // --- Only allow movement if not emptying --- \\
+        if (isEmptying)
+        {
+            rb.velocity = Vector3.zero; // Stop movement
+            return; // Exit the method early if emptying
         }
 
         float targetSpeed = baseMoveSpeed;
@@ -182,9 +190,7 @@ public class Mover : MonoBehaviour
         {
             if (currentCapacity > 0)
             {
-                moveSpeed = 0f; // Temporarily stop movement
-                EmptyBag(); // Call the method to empty the dust bag
-                moveSpeed = baseMoveSpeed; // Restore movement speed
+                StartCoroutine(BagEmptying()); // Simulate bag emptying process
             }
             else
             {
@@ -197,12 +203,10 @@ public class Mover : MonoBehaviour
     void EmptyBag()
     {
         Debug.Log("Emptying dust bag...");
-        GetComponentInChildren<MeshRenderer>().material.color = Color.yellow;
-        currentCapacity = 0; // Reset capacity
+        
         UpdateUI();         // Update UI immediately
         
         SpawnBinBag(); // Spawn the bin bag
-        StartCoroutine(ChangeColour()); // Change colour back after delay
     }
 
     // === SPAWN BIN BAG METHOD === \\
@@ -393,6 +397,51 @@ public class Mover : MonoBehaviour
 
         // Resume movement speed
         moveSpeed = 10;
+
+        // Restart the looping vacuum sound
+        if (audioSource != null && vacuumLoop != null) // Safety check
+        {
+            audioSource.clip = vacuumLoop;
+            audioSource.loop = true;
+            audioSource.Play();
+        }
+    }
+
+    // --- Bin Bag Disposal --- \\
+    IEnumerator BagEmptying()
+    {
+        audioSource.Stop();
+
+        isEmptying = true; // Set emptying flag to prevent multiple triggers
+
+        moveSpeed = 0f; // Stop movement during emptying
+
+        // Play the vacuum OFF sound
+        PlaySound(vacuumOff);
+
+        GetComponentInChildren<MeshRenderer>().material.color = Color.yellow; // Change roomba to yellow to indicate emptying
+
+        yield return new WaitForSeconds(5); // Simulate time taken to empty bag
+
+        EmptyBag(); // Call the empty bag method
+
+        currentCapacity = 0; // Reset capacity after emptying
+
+        // Play the vacuum on sound
+        PlaySound(vacuumOn);
+
+        GetComponentInChildren<MeshRenderer>().material.color = Color.green; // Change roomba to green to indicate successful emptying
+
+        // Wait for the vacuum light to change
+        yield return new WaitForSeconds(0.5f);
+
+        // Return to the normal game state
+
+        GetComponentInChildren<MeshRenderer>().material.color = Color.aquamarine; // Change roomba back to normal colour
+
+        isEmptying = false; // Reset emptying flag
+
+        moveSpeed = baseMoveSpeed; // Resume normal speed
 
         // Restart the looping vacuum sound
         if (audioSource != null && vacuumLoop != null) // Safety check
