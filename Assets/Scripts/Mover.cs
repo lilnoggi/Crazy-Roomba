@@ -108,14 +108,14 @@ public class Mover : MonoBehaviour
         // --- Only allow movement if not broken --- \\
         if (isBroken)
         {
-            rb.velocity = Vector3.zero; // Stop movement
+            rb.linearVelocity = Vector3.zero; // Stop movement
             return; // Exit the method early if broken
         }
 
         // --- Only allow movement if not emptying --- \\
         if (isEmptying)
         {
-            rb.velocity = Vector3.zero; // Stop movement
+            rb.linearVelocity = Vector3.zero; // Stop movement
             return; // Exit the method early if emptying
         }
 
@@ -157,12 +157,12 @@ public class Mover : MonoBehaviour
             Vector3 desiredVelocity = movement * moveSpeed;
 
             // Apply the velocity while preserving existing Y velocity (gravity)
-            rb.velocity = new Vector3(desiredVelocity.x, rb.velocity.y, desiredVelocity.z); // Preserve existing Y velocity (gravity)
+            rb.linearVelocity = new Vector3(desiredVelocity.x, rb.linearVelocity.y, desiredVelocity.z); // Preserve existing Y velocity (gravity)
         }
         else
         {
             // No input, stop horizontal movement
-            rb.velocity = Vector3.zero; // Stop horizontal movement
+            rb.linearVelocity = Vector3.zero; // Stop horizontal movement
         }
     }
 
