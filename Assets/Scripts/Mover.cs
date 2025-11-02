@@ -269,7 +269,7 @@ public class Mover : MonoBehaviour
 
             // --- Capacity Tracking --- \\
             const int dustCapacityCost = 1; // Each dust collected costs 1 capacity
-            const int dustScore = 10; // How many points each dust is worth
+            const int dustScore = 20; // How many points each dust is worth
 
             currentCapacity += dustCapacityCost; // Increase current capacity
             score += dustScore;                 // Increase score
@@ -304,7 +304,7 @@ public class Mover : MonoBehaviour
     // === UPDATE UI === \\
     void UpdateUI()
     {
-        dustCounter.text = $"Dust Collected: {dustCollected}";                    // Updates dust collected UI
+        dustCounter.text = $"Dust Collected: {dustCollected}/30";                    // Updates dust collected UI
         furnitureHitCounter.text = $"Furniture Hit: {hits}";                     // Updates furniture hit UI
         scoreCounter.text = $"Score: {score}";                                  // Updates score UI
         capacityCounter.text = $"Capacity: {currentCapacity}/{maxCapacity}"; // Updates capacity UI

@@ -13390,7 +13390,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: Control the Roomba with WASD and vacuum up all the dust! Try not to bang
     into any furniture or there'll be consequences! Dump garbage in the blue disposal
-    area when capacity is full.
+    area when capacity is full. Use Q and E to rotate the camera
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bb73de47389a6524197e52a2b091a63b, type: 2}
   m_sharedMaterial: {fileID: -6203524731902705976, guid: bb73de47389a6524197e52a2b091a63b, type: 2}
@@ -13417,8 +13417,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 45
-  m_fontSizeBase: 45
+  m_fontSize: 40
+  m_fontSizeBase: 40
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
