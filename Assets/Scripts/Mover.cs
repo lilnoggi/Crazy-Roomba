@@ -37,6 +37,7 @@ public class Mover : MonoBehaviour
     public TextMeshProUGUI scoreCounter;       // UI text for score
     public TextMeshProUGUI capacityCounter;   // UI text for dust capacity
     public GameObject promptCanvas;          // UI canvas for prompts
+    public GameObject gameWonCanvas;        // UI canvas for game won
 
     [Header("Audio")]
     public AudioClip pickupSound;
@@ -100,6 +101,13 @@ public class Mover : MonoBehaviour
         movement = GetCameraRelativeMovement(rawInput);
 
         MoveRoomba(); // Roomba movement method
+
+        // Check for win condition \\
+        // Win condition: Collect 30 dust and have an empty bag
+        if (dustCollected == 30 && currentCapacity == 0)
+        {
+            WinGame(); // Call the win game method
+        }
     }
 
     // === ROOMBA MOVEMENT === \\
@@ -108,14 +116,14 @@ public class Mover : MonoBehaviour
         // --- Only allow movement if not broken --- \\
         if (isBroken)
         {
-            rb.velocity = Vector3.zero; // Stop movement
+            rb.linearVelocity = Vector3.zero; // Stop movement
             return; // Exit the method early if broken
         }
 
         // --- Only allow movement if not emptying --- \\
         if (isEmptying)
         {
-            rb.velocity = Vector3.zero; // Stop movement
+            rb.linearVelocity = Vector3.zero; // Stop movement
             return; // Exit the method early if emptying
         }
 
@@ -157,12 +165,12 @@ public class Mover : MonoBehaviour
             Vector3 desiredVelocity = movement * moveSpeed;
 
             // Apply the velocity while preserving existing Y velocity (gravity)
-            rb.velocity = new Vector3(desiredVelocity.x, rb.velocity.y, desiredVelocity.z); // Preserve existing Y velocity (gravity)
+            rb.linearVelocity = new Vector3(desiredVelocity.x, rb.linearVelocity.y, desiredVelocity.z); // Preserve existing Y velocity (gravity)
         }
         else
         {
             // No input, stop horizontal movement
-            rb.velocity = Vector3.zero; // Stop horizontal movement
+            rb.linearVelocity = Vector3.zero; // Stop horizontal movement
         }
     }
 
@@ -187,7 +195,7 @@ public class Mover : MonoBehaviour
     // === HANDLE DISPOSAL INPUT === \\
     void HandleDisposalInput()
     {
-        if (playerDetection && Input.GetKeyDown(KeyCode.E))
+        if (playerDetection && Input.GetKeyDown(KeyCode.F))
         {
             if (currentCapacity > 0)
             {
@@ -269,7 +277,7 @@ public class Mover : MonoBehaviour
 
             // --- Capacity Tracking --- \\
             const int dustCapacityCost = 1; // Each dust collected costs 1 capacity
-            const int dustScore = 10; // How many points each dust is worth
+            const int dustScore = 20; // How many points each dust is worth
 
             currentCapacity += dustCapacityCost; // Increase current capacity
             score += dustScore;                 // Increase score
@@ -304,7 +312,7 @@ public class Mover : MonoBehaviour
     // === UPDATE UI === \\
     void UpdateUI()
     {
-        dustCounter.text = $"Dust Collected: {dustCollected}";                    // Updates dust collected UI
+        dustCounter.text = $"Dust Collected: {dustCollected}/30";                    // Updates dust collected UI
         furnitureHitCounter.text = $"Furniture Hit: {hits}";                     // Updates furniture hit UI
         scoreCounter.text = $"Score: {score}";                                  // Updates score UI
         capacityCounter.text = $"Capacity: {currentCapacity}/{maxCapacity}"; // Updates capacity UI
@@ -453,5 +461,19 @@ public class Mover : MonoBehaviour
             audioSource.loop = true;
             audioSource.Play();
         }
+    }
+
+    // === END OF COROUTINES === \\
+
+    // === WIN GAME METHOD === \\
+    public void WinGame()
+    {
+        gameWonCanvas.SetActive(true); // Show game won UI
+        Time.timeScale = 0f; // Pause the game
+
+        Cursor.lockState = CursorLockMode.None; // Unlock the cursor
+        Cursor.visible = true; // Make the cursor visible
+
+        Debug.Log("Congratulations! You've collected all the dust and won the game!");
     }
 }

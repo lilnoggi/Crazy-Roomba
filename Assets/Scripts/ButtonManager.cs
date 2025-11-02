@@ -52,4 +52,9 @@ public class ButtonManager : MonoBehaviour
         Debug.Log("Exit Application."); // Log message for quitting the game
         Application.Quit(); // Quit the application
     }
+
+    public void MainMenu()
+    {
+        SceneManager.LoadScene(0); // Load the main menu scene
+    }
 }
