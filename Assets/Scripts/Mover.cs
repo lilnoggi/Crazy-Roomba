@@ -187,7 +187,7 @@ public class Mover : MonoBehaviour
     // === HANDLE DISPOSAL INPUT === \\
     void HandleDisposalInput()
     {
-        if (playerDetection && Input.GetKeyDown(KeyCode.E))
+        if (playerDetection && Input.GetKeyDown(KeyCode.F))
         {
             if (currentCapacity > 0)
             {
