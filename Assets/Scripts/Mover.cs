@@ -37,6 +37,7 @@ public class Mover : MonoBehaviour
     public TextMeshProUGUI scoreCounter;       // UI text for score
     public TextMeshProUGUI capacityCounter;   // UI text for dust capacity
     public GameObject promptCanvas;          // UI canvas for prompts
+    public GameObject gameWonCanvas;        // UI canvas for game won
 
     [Header("Audio")]
     public AudioClip pickupSound;
@@ -100,6 +101,13 @@ public class Mover : MonoBehaviour
         movement = GetCameraRelativeMovement(rawInput);
 
         MoveRoomba(); // Roomba movement method
+
+        // Check for win condition \\
+        // Win condition: Collect 30 dust and have an empty bag
+        if (dustCollected == 30 && currentCapacity == 0)
+        {
+            WinGame(); // Call the win game method
+        }
     }
 
     // === ROOMBA MOVEMENT === \\
@@ -453,5 +461,19 @@ public class Mover : MonoBehaviour
             audioSource.loop = true;
             audioSource.Play();
         }
+    }
+
+    // === END OF COROUTINES === \\
+
+    // === WIN GAME METHOD === \\
+    public void WinGame()
+    {
+        gameWonCanvas.SetActive(true); // Show game won UI
+        Time.timeScale = 0f; // Pause the game
+
+        Cursor.lockState = CursorLockMode.None; // Unlock the cursor
+        Cursor.visible = true; // Make the cursor visible
+
+        Debug.Log("Congratulations! You've collected all the dust and won the game!");
     }
 }
