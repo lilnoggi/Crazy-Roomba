@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
+//_____________________________________\\
+// PLAYER SCRIPT                        \\_______\\
+// This script handles the Roomba movement logic. \\
+// It also manages dust collection, furniture      \\
+// collisions, and disposal mechanics.              \\
+//___________________________________________________\\
+
 public class Mover : MonoBehaviour
 {
     // === VARIABLES === \\
@@ -38,15 +45,25 @@ public class Mover : MonoBehaviour
     public AudioClip vacuumOff;
     public AudioClip vacuumOn;
     public AudioClip brokeDown;
+    public AudioClip disposal;
 
     private AudioSource audioSource;
 
+    [Header("State Flags")]
     private bool isBroken =  false; // Prevents speed from being reset while broken
     private bool isSlowed = false; // Prevents the next fix from being overridden
     public bool isFull = false;  // New flag for bag status
+    private bool isEmptying = false; // Prevents multiple emptying actions
+
+    private Transform cameraTransform; // Reference to the main camera's transform
+    private Vector3 movement;          // Movement vector
+
+    private Rigidbody rb; // Reference to the Rigidbody component
 
     private void Awake()
     {
+        rb = GetComponent<Rigidbody>(); // Get the Rigidbody component
+
         audioSource = GetComponent<AudioSource>();
 
         // === LOGIC FOR AUDIO LOOPING === \\
@@ -56,14 +73,33 @@ public class Mover : MonoBehaviour
             audioSource.loop = true;      // Enable looping
             audioSource.Play();          // Start the loop
         }
+
+        // === MAIN CAMERA REFERENCE === \\
+        // Find & store the main camera's transform \\
+        if (Camera.main != null)
+        {
+            cameraTransform = Camera.main.transform; // gets camera transform
+        }
+        else
+        {
+            Debug.LogError("CAMERA NOT FOUND!!!!"); // camera is not placed in the inspector
+        }
     }
 
     void Update()
     {
-        MoveRoomba(); // Roomba movement method
         UpdateUI();  // Updates the UI output
 
         HandleDisposalInput(); // Check for disposal input
+
+        // === CAMERA INFLUENCE ON MOVEMENT === \\
+        // Get the RAW input values
+        Vector3 rawInput = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical")).normalized;
+
+        // Convert the raw input to be relative to the camera's orientation
+        movement = GetCameraRelativeMovement(rawInput);
+
+        MoveRoomba(); // Roomba movement method
     }
 
     // === ROOMBA MOVEMENT === \\
@@ -72,8 +108,15 @@ public class Mover : MonoBehaviour
         // --- Only allow movement if not broken --- \\
         if (isBroken)
         {
-            moveSpeed = 0f;
+            rb.velocity = Vector3.zero; // Stop movement
             return; // Exit the method early if broken
+        }
+
+        // --- Only allow movement if not emptying --- \\
+        if (isEmptying)
+        {
+            rb.velocity = Vector3.zero; // Stop movement
+            return; // Exit the method early if emptying
         }
 
         float targetSpeed = baseMoveSpeed;
@@ -98,10 +141,47 @@ public class Mover : MonoBehaviour
         // --- Final speed is the calculated target speed --- \\
         moveSpeed = targetSpeed;
 
-        float xValue = Input.GetAxis("Horizontal") * Time.deltaTime; // Get the horizontal keys (A, D, Left, Right)
-        float zValue = Input.GetAxis("Vertical") * Time.deltaTime;  // Get vertical movement keys (W, S, Up, Down)
+        //float xValue = Input.GetAxis("Horizontal") * Time.deltaTime; // Get the horizontal keys (A, D, Left, Right) // Commented out for new HandleRotaiton()
+        //float zValue = Input.GetAxis("Vertical") * Time.deltaTime;  // Get vertical movement keys (W, S, Up, Down)
 
-        transform.Translate(xValue * moveSpeed, 0f, zValue * moveSpeed); // Movement speed calculation
+        // =-= FIX: APPLY MOVEMENT VECTOR DIRECTLY =-= \\
+        // Apply the camera-relative movement vector 'movement' to the position \\
+        // The movement vector is already calculated in Update() based on input \\
+        //transform.Translate(movement * moveSpeed * Time.deltaTime, Space.World); // Movement speed calculation // Commented out for Rigidbody movement
+
+        // --- RIGIDBODY MOVEMENT --- \\
+        // Set the velocity directly (less "drifty" than Translate)
+        if (movement.magnitude > 0.1f)
+        {
+            // Apply new calculated velocity in the direction of camera-relative input
+            Vector3 desiredVelocity = movement * moveSpeed;
+
+            // Apply the velocity while preserving existing Y velocity (gravity)
+            rb.velocity = new Vector3(desiredVelocity.x, rb.velocity.y, desiredVelocity.z); // Preserve existing Y velocity (gravity)
+        }
+        else
+        {
+            // No input, stop horizontal movement
+            rb.velocity = Vector3.zero; // Stop horizontal movement
+        }
+    }
+
+    // Camera rotation influences player movement direction \\
+    Vector3 GetCameraRelativeMovement(Vector3 rawInput)
+    {
+        if (cameraTransform == null || rawInput.magnitude < 0.1f)
+        {
+            return Vector3.zero; // no camera or no input, return no movement
+        }
+
+        // Get the camera's Y rotation 
+        Quaternion cameraRotation = Quaternion.Euler(0, cameraTransform.eulerAngles.y, 0);
+
+        // Rotate the input vector (forward/backward/strafe) by the camera's rotation
+        Vector3 newMovement = cameraRotation * new Vector3(rawInput.x, 0f, rawInput.z);
+
+        // Keep movement vector normalised
+        return newMovement.normalized;
     }
 
     // === HANDLE DISPOSAL INPUT === \\
@@ -111,9 +191,7 @@ public class Mover : MonoBehaviour
         {
             if (currentCapacity > 0)
             {
-                moveSpeed = 0f; // Temporarily stop movement
-                EmptyBag(); // Call the method to empty the dust bag
-                moveSpeed = baseMoveSpeed; // Restore movement speed
+                StartCoroutine(BagEmptying()); // Simulate bag emptying process
             }
             else
             {
@@ -126,12 +204,10 @@ public class Mover : MonoBehaviour
     void EmptyBag()
     {
         Debug.Log("Emptying dust bag...");
-        GetComponentInChildren<MeshRenderer>().material.color = Color.yellow;
-        currentCapacity = 0; // Reset capacity
+        
         UpdateUI();         // Update UI immediately
         
         SpawnBinBag(); // Spawn the bin bag
-        StartCoroutine(ChangeColour()); // Change colour back after delay
     }
 
     // === SPAWN BIN BAG METHOD === \\
@@ -299,7 +375,7 @@ public class Mover : MonoBehaviour
         // Play the vacuum OFF sound
         PlaySound(vacuumOff);
 
-        GetComponentInChildren<MeshRenderer>().material.color = Color.red; // Change roomba to red to indicate broken state
+        GetComponentInChildren<MeshRenderer>().material.color = Color.black; // Change roomba to red to indicate broken state
 
         // 2. Wait for the break period
         yield return new WaitForSeconds(delay);
@@ -322,6 +398,53 @@ public class Mover : MonoBehaviour
 
         // Resume movement speed
         moveSpeed = 10;
+
+        // Restart the looping vacuum sound
+        if (audioSource != null && vacuumLoop != null) // Safety check
+        {
+            audioSource.clip = vacuumLoop;
+            audioSource.loop = true;
+            audioSource.Play();
+        }
+    }
+
+    // --- Bin Bag Disposal --- \\
+    IEnumerator BagEmptying()
+    {
+        audioSource.Stop();
+
+        isEmptying = true; // Set emptying flag to prevent multiple triggers
+
+        moveSpeed = 0f; // Stop movement during emptying
+
+        // Play the vacuum OFF sound
+        PlaySound(vacuumOff);
+
+        PlaySound(disposal);
+
+        GetComponentInChildren<MeshRenderer>().material.color = Color.yellow; // Change roomba to yellow to indicate emptying
+
+        yield return new WaitForSeconds(9); // Simulate time taken to empty bag and audio to end
+
+        EmptyBag(); // Call the empty bag method
+
+        currentCapacity = 0; // Reset capacity after emptying
+
+        // Play the vacuum on sound
+        PlaySound(vacuumOn);
+
+        GetComponentInChildren<MeshRenderer>().material.color = Color.green; // Change roomba to green to indicate successful emptying
+
+        // Wait for the vacuum light to change
+        yield return new WaitForSeconds(0.5f);
+
+        // Return to the normal game state
+
+        GetComponentInChildren<MeshRenderer>().material.color = Color.aquamarine; // Change roomba back to normal colour
+
+        isEmptying = false; // Reset emptying flag
+
+        moveSpeed = baseMoveSpeed; // Resume normal speed
 
         // Restart the looping vacuum sound
         if (audioSource != null && vacuumLoop != null) // Safety check

@@ -2,6 +2,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
+//________________________________\\
+//  BUTTON MANAGER SCRIPT  \\
+// This script manages button interactions, tutorial panel display, and scene transitions. \\
+//________________________________\\
+
 public class ButtonManager : MonoBehaviour
 {
     public GameObject tutorialPanel; // Reference to the tutorial panel UI
@@ -14,6 +19,7 @@ public class ButtonManager : MonoBehaviour
         }
     }
 
+    // === TUTORIAL PANEL MANAGEMENT === \\
     void PauseGame() 
     {
         tutorialPanel.SetActive(true); // Show the tutorial panel
@@ -23,6 +29,7 @@ public class ButtonManager : MonoBehaviour
         Cursor.visible = true; // Make the cursor visible
     }
 
+    // === TUTORIAL BUTTON HANDLER === \\
     public void TutorialButton()
     {
         tutorialPanel.SetActive(false); // Hide the tutorial panel
@@ -32,13 +39,14 @@ public class ButtonManager : MonoBehaviour
         Cursor.visible = false; // Hide the cursor
     }
 
-    // --- SCENE MANAGEMENT --- \\
+    // === SCENE MANAGEMENT === \\
 
     public void LoadGame()
     {
         SceneManager.LoadScene(1); // Load the main game scene
     }
 
+    // === QUIT APPLICATION === \\
     public void QuitGame()
     {
         Debug.Log("Exit Application."); // Log message for quitting the game

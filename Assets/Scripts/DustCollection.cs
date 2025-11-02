@@ -1,5 +1,10 @@
 using UnityEngine;
 
+//_____________________________________\\
+//  DUST COLLECTION SCRIPT  \\
+// This script handles the collection of dust objects by the player. \\
+//_____________________________________\\
+
 public class DustCollection : MonoBehaviour
 {
     private Mover moverScript; // Reference to the Mover script
