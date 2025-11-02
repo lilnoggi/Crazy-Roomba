@@ -4553,6 +4553,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c565a9e040fb56449d73128136408f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DirectionIndicator
+  indicator: {fileID: 1680656407}
   disposalZone: {fileID: 1292389511}
 --- !u!1 &722545724
 GameObject:
