@@ -32,6 +32,10 @@ public class Mover : MonoBehaviour
     public GameObject disposalArea;  // Reference to the disposal area object
     public GameObject binBagPrefab; // Prefab for the bin bag to instantiate
 
+    [Header("Shake Variables")]
+    [SerializeField] private float shakeMagnitude = 0.05f; // Magnitude of the shake effect
+    [SerializeField] private float shakeDuration = 4.5f; // Duration of the shake effect
+
     [Header("UI Components")]
     public TextMeshProUGUI dustCounter;          // UI text fore score goes here!
     public TextMeshProUGUI furnitureHitCounter; // UI text for amount of furniture hit
@@ -435,11 +439,14 @@ public class Mover : MonoBehaviour
 
         GetComponentInChildren<MeshRenderer>().material.color = Color.yellow; // Change roomba to yellow to indicate emptying
 
+        StartCoroutine(ShakeRoomba()); // Start shaking effect
+
         yield return new WaitForSeconds(5); // Simulate time taken to empty bag and audio to end
 
+        // --- Core Logic --- \\
         EmptyBag(); // Call the empty bag method
-
         currentCapacity = 0; // Reset capacity after emptying
+        // --- End of Core Logic --- \\
 
         // Play the vacuum on sound
         PlaySound(vacuumOn);
@@ -464,6 +471,22 @@ public class Mover : MonoBehaviour
             audioSource.loop = true;
             audioSource.Play();
         }
+    }
+
+    // --- Shake Effect Coroutine --- \\
+    IEnumerator ShakeRoomba()
+    {
+        Vector3 originalPosition = transform.position; // Store the original position
+        float elapsed = 0f; // Time elapsed
+        while (elapsed < shakeDuration)
+        {
+            float xOffset = Random.Range(-shakeMagnitude, shakeMagnitude);
+            float zOffset = Random.Range(-shakeMagnitude, shakeMagnitude);
+            transform.position = originalPosition + new Vector3(xOffset, 0f, zOffset); // Apply shake offset
+            elapsed += Time.deltaTime; // Increment elapsed time
+            yield return null; // Wait for the next frame
+        }
+        transform.position = originalPosition; // Reset to original position
     }
 
     // === END OF COROUTINES === \\

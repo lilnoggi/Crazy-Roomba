@@ -2584,6 +2584,8 @@ MonoBehaviour:
   playerDetection: 0
   disposalArea: {fileID: 391122725}
   binBagPrefab: {fileID: 419575947168472052, guid: d9cb22ced39331a499677de70e74cb86, type: 3}
+  shakeMagnitude: 0.1
+  shakeDuration: 4
   dustCounter: {fileID: 1429073188}
   furnitureHitCounter: {fileID: 20567774}
   scoreCounter: {fileID: 678570843}
