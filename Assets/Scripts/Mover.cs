@@ -21,6 +21,7 @@ public class Mover : MonoBehaviour
     [SerializeField] int hitLimit = 0;            // Limit before the Roomba breaks down
     public int dustCollected;                    // Amount of dust player collected
     public int score;                           // Player's score
+    public GameObject suctionVFXPrefab;        // VFX prefab for dust suction effect
 
     [Header("Capacity Variables")]
     public int maxCapacity = 10;            // Maximum dust capacity before Roomba needs to empty
@@ -283,6 +284,8 @@ public class Mover : MonoBehaviour
             score += dustScore;                 // Increase score
             dustCollected++;                   // Increase dust collected
 
+            Instantiate(suctionVFXPrefab, other.transform.position, Quaternion.identity);
+
             StartCoroutine(SlowDown()); // Slow down the player temporarily
             PlaySound(pickupSound);
         }
@@ -432,7 +435,7 @@ public class Mover : MonoBehaviour
 
         GetComponentInChildren<MeshRenderer>().material.color = Color.yellow; // Change roomba to yellow to indicate emptying
 
-        yield return new WaitForSeconds(9); // Simulate time taken to empty bag and audio to end
+        yield return new WaitForSeconds(5); // Simulate time taken to empty bag and audio to end
 
         EmptyBag(); // Call the empty bag method
 
